@@ -1,0 +1,3425 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>שרטוט פונקציות, אסימפטוטות ונקודות סליקה</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Heebo for crisp Hebrew & JetBrains Mono for LTR math -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- KaTeX CSS & JS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+
+  <!-- MathLive CSS & JS (כתיב מתמטי דו-ממדי מלא) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mathlive@0.101.0/dist/mathlive-static.css" />
+  <script src="https://cdn.jsdelivr.net/npm/mathlive@0.101.0/dist/mathlive.min.js"></script>
+
+  <!-- math.js -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@14.2.1/lib/browser/math.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Heebo', system-ui, -apple-system, sans-serif;
+      background-color: #ffffff;
+      color: #0f172a;
+    }
+    .math-ltr {
+      direction: ltr;
+      unicode-bidi: isolate;
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-block;
+    }
+    .katex-ltr {
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: inline-block;
+    }
+    input[dir="ltr"] {
+      direction: ltr;
+      unicode-bidi: plaintext;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* עיצוב שדה הכתיב המתמטי הדו-ממדי */
+    math-field#math-input {
+      display: block;
+      width: 100%;
+      min-height: 52px;
+      padding: 6px 12px;
+      font-size: 1.35rem;
+      line-height: 1.5;
+      color: #0f172a;
+      background: transparent;
+      border: none;
+      outline: none;
+      direction: ltr;
+      --hue: 239;
+      --caret-color: #4f46e5;
+      --selection-background-color: rgba(79, 70, 229, 0.16);
+      --contains-highlight-background-color: rgba(79, 70, 229, 0.06);
+    }
+    math-field#math-input::part(virtual-keyboard-toggle),
+    math-field#math-input::part(menu-toggle) {
+      display: none;
+    }
+    .vk-key .katex {
+      font-size: 0.95rem;
+    }
+    .preset-btn .katex {
+      font-size: 0.9rem;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    canvas {
+      touch-action: none;
+      cursor: crosshair;
+    }
+    canvas.grabbing {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-900 min-h-screen flex flex-col selection:bg-rose-100 selection:text-rose-900">
+
+  <!-- כותרת ראשית -->
+  <header class="border-b border-slate-200/80 bg-white sticky top-0 z-30 backdrop-blur-md bg-white/95">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-indigo-600 flex items-center justify-center text-white shadow-sm shrink-0">
+          <!-- אייקון SVG של עקומה עם נקודת סליקה -->
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M3 19C7 17 9 13 11 11" stroke-linecap="round" />
+            <path d="M14.5 7.5C16.5 5.5 18.5 4.5 21 4" stroke-linecap="round" />
+            <circle cx="12.75" cy="9.25" r="2.3" fill="#ffffff" stroke="#ffffff" stroke-width="1.5" />
+            <circle cx="12.75" cy="9.25" r="2.3" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+            חקירת פונקציות, אסימפטוטות ונקודות סליקה
+          </h1>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- תוכן ראשי -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
+
+    <!-- שורה עליונה: הזנת פונקציה מימין + מחשבון מתמטי מוקטן משמאל באותה שורה -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-3.5 sm:p-4">
+      <div class="flex flex-col lg:flex-row lg:items-stretch gap-4">
+
+        <!-- צד ימין: הזנת משוואת הפונקציה ותצוגה חיה -->
+        <div class="lg:w-7/12 flex flex-col justify-center gap-3">
+          <div class="space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label for="math-input" class="text-sm font-bold text-slate-800">
+                הזינו משוואת פונקציה (כתיב מתמטי דו-ממדי):
+              </label>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+              <div class="relative flex-1 flex items-center rounded-xl border border-slate-300 bg-slate-50/60 focus-within:bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all overflow-hidden" dir="ltr">
+                <span class="px-3 py-2 text-base font-semibold text-slate-600 bg-slate-100/80 border-r border-slate-200 select-none self-stretch flex items-center" style="font-family: 'KaTeX_Math', 'Times New Roman', serif;">
+                  f(x) =
+                </span>
+                <math-field
+                  id="math-input"
+                  dir="ltr"
+                  math-virtual-keyboard-policy="manual"
+                  aria-label="הזנת משוואת פונקציה בכתיב מתמטי"
+                >\frac{x^2 - 1}{x^2 - 3x + 2}</math-field>
+                <!-- שדה חלופי אוטומטי למקרה של עבודה ללא חיבור לרשת -->
+                <input
+                  id="func-input-fallback"
+                  type="text"
+                  dir="ltr"
+                  value="(x^2 - 1) / (x^2 - 3*x + 2)"
+                  placeholder="e.g. (x^2 - 4) / (x - 2)"
+                  autocomplete="off"
+                  spellcheck="false"
+                  class="hidden w-full px-3 py-2 text-base text-slate-900 bg-transparent focus:outline-none"
+                />
+                <button
+                  id="latex-mode-btn"
+                  type="button"
+                  title="החלף בין תצוגת LaTeX חזותית לקוד LaTeX"
+                  class="px-2 self-stretch border-l border-slate-200/80 text-[11px] font-mono font-semibold text-indigo-700 hover:bg-indigo-50 transition-colors"
+                >
+                  LaTeX
+                </button>
+                <button
+                  id="clear-btn"
+                  type="button"
+                  title="נקה שדה"
+                  class="px-2.5 self-stretch text-slate-400 hover:text-slate-600 transition-colors text-sm font-medium"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <!-- התראת שגיאה -->
+            <div id="error-banner" class="hidden rounded-xl bg-red-50 border border-red-200 px-3.5 py-2 text-xs sm:text-sm text-red-700 flex items-center gap-2">
+              <span class="font-bold">שגיאה בביטוי:</span>
+              <span id="error-text"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- צד שמאל: מחשבון מתמטי מוקטן באותה שורה -->
+        <div class="lg:w-5/12 flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50/90 p-2.5 shadow-inner">
+          <!-- כותרת המחשבון ולשוניות -->
+          <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-200/80">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <rect x="4" y="2" width="16" height="20" rx="2.5" />
+                <path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h4" stroke-linecap="round" />
+              </svg>
+              <span>מחשבון</span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <div id="vk-tabs-bar" class="inline-flex rounded-lg bg-slate-200/70 p-0.5">
+                <button
+                  type="button"
+                  data-vk-tab="basic"
+                  class="vk-tab-btn px-2 py-0.5 rounded-md text-[11px] font-semibold bg-white text-slate-900 shadow-2xs transition"
+                >
+                  בסיסי
+                </button>
+                <button
+                  type="button"
+                  data-vk-tab="advanced"
+                  class="vk-tab-btn px-2 py-0.5 rounded-md text-[11px] font-semibold text-slate-600 hover:text-slate-900 transition"
+                >
+                  פונקציות
+                </button>
+              </div>
+
+              <button
+                id="vk-toggle-btn"
+                type="button"
+                aria-expanded="true"
+                title="הסתר או הצג מחשבון"
+                class="px-2 py-0.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 text-[11px] font-semibold transition"
+              >
+                הסתר
+              </button>
+            </div>
+          </div>
+
+          <!-- גוף המחשבון המוקטן -->
+          <div id="virtual-keyboard" class="space-y-1.5">
+            <!-- לשונית 1: בסיסי וספרות בגריד צפוף -->
+            <div id="vk-panel-basic" class="grid grid-cols-8 gap-1" dir="ltr">
+              <!-- שורה 1 -->
+              <button type="button" data-latex="x" class="vk-key h-8 rounded-lg border border-indigo-200 bg-indigo-50/90 hover:bg-indigo-100 text-indigo-900 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="x">x</span></button>
+              <button type="button" data-latex="\pi" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\pi">π</span></button>
+              <button type="button" data-latex="e" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="e">e</span></button>
+              <button type="button" data-latex="\frac{#@}{#?}" title="שבר בנוי" class="vk-key h-8 rounded-lg border border-rose-200 bg-rose-50/90 hover:bg-rose-100 text-rose-900 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\frac{\square}{\square}">□/□</span></button>
+              <button type="button" data-latex="7" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">7</button>
+              <button type="button" data-latex="8" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">8</button>
+              <button type="button" data-latex="9" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">9</button>
+              <button type="button" data-latex="\frac{#@}{#?}" title="חילוק" class="vk-key h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-900 font-mono font-bold text-xs active:scale-95 transition">÷</button>
+
+              <!-- שורה 2 -->
+              <button type="button" data-latex="^{2}" title="בריבוע" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="x^2">x²</span></button>
+              <button type="button" data-latex="^{3}" title="בשלישית" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="x^3">x³</span></button>
+              <button type="button" data-latex="^{#?}" title="חזקה כללית" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="x^{\square}">xⁿ</span></button>
+              <button type="button" data-latex="\left|#@\right|" title="ערך מוחלט" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="|x|">|x|</span></button>
+              <button type="button" data-latex="4" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">4</button>
+              <button type="button" data-latex="5" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">5</button>
+              <button type="button" data-latex="6" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">6</button>
+              <button type="button" data-latex="\cdot" title="כפל" class="vk-key h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-900 font-mono font-bold text-xs active:scale-95 transition">×</button>
+
+              <!-- שורה 3 -->
+              <button type="button" data-latex="\sqrt{#@}" title="שורש ריבועי" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\sqrt{\square}">√</span></button>
+              <button type="button" data-latex="\sqrt[3]{#@}" title="שורש שלישי" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\sqrt[3]{\square}">∛</span></button>
+              <button type="button" data-latex="(" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 font-mono font-semibold text-xs active:scale-95 transition">(</button>
+              <button type="button" data-latex=")" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 font-mono font-semibold text-xs active:scale-95 transition">)</button>
+              <button type="button" data-latex="1" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">1</button>
+              <button type="button" data-latex="2" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">2</button>
+              <button type="button" data-latex="3" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">3</button>
+              <button type="button" data-latex="-" title="חיסור" class="vk-key h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-900 font-mono font-bold text-xs active:scale-95 transition">−</button>
+
+              <!-- שורה 4: חצי ניווט, אפס, נקודה, מחיקה וחיבור -->
+              <button type="button" data-cmd="moveToPreviousChar" title="סמן שמאלה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">←</button>
+              <button type="button" data-cmd="moveUp" title="עלה למונה / לחזקה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">↑</button>
+              <button type="button" data-cmd="moveDown" title="רד למכנה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">↓</button>
+              <button type="button" data-cmd="moveToNextChar" title="סמן ימינה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">→</button>
+              <button type="button" data-latex="0" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-semibold text-xs active:scale-95 transition">0</button>
+              <button type="button" data-latex="." class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 font-mono font-bold text-xs active:scale-95 transition">.</button>
+              <button type="button" data-cmd="deleteBackward" title="מחק תו" class="vk-key h-8 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-900 font-mono font-bold text-xs active:scale-95 transition">⌫</button>
+              <button type="button" data-latex="+" title="חיבור" class="vk-key h-8 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-900 font-mono font-bold text-xs active:scale-95 transition">+</button>
+            </div>
+
+            <!-- לשונית 2: פונקציות מתקדמות בגריד מוקטן -->
+            <div id="vk-panel-advanced" class="hidden grid-cols-6 gap-1" dir="ltr">
+              <button type="button" data-latex="\sin\left(#@\right)" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\sin">sin</span></button>
+              <button type="button" data-latex="\cos\left(#@\right)" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\cos">cos</span></button>
+              <button type="button" data-latex="\tan\left(#@\right)" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\tan">tan</span></button>
+              <button type="button" data-latex="\ln\left(#@\right)" class="vk-key h-8 rounded-lg border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\ln">ln</span></button>
+              <button type="button" data-latex="\log_{10}\left(#@\right)" class="vk-key h-8 rounded-lg border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\log_{10}">log₁₀</span></button>
+              <button type="button" data-latex="e^{#@}" class="vk-key h-8 rounded-lg border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="e^{\square}">eˣ</span></button>
+
+              <button type="button" data-latex="\sin^{-1}\left(#@\right)" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\sin^{-1}">sin⁻¹</span></button>
+              <button type="button" data-latex="\cos^{-1}\left(#@\right)" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\cos^{-1}">cos⁻¹</span></button>
+              <button type="button" data-latex="\tan^{-1}\left(#@\right)" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\tan^{-1}">tan⁻¹</span></button>
+              <button type="button" data-latex="\frac{1}{x}" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\frac{1}{x}">1/x</span></button>
+              <button type="button" data-latex="^{-1}" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="x^{-1}">x⁻¹</span></button>
+              <button type="button" data-latex="\frac{#@}{#?}" class="vk-key h-8 rounded-lg border border-rose-200 bg-rose-50/80 hover:bg-rose-100 text-rose-900 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\frac{\square}{\square}">□/□</span></button>
+
+              <button type="button" data-latex="x" class="vk-key h-8 rounded-lg border border-indigo-200 bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="x">x</span></button>
+              <button type="button" data-latex="\pi" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\pi">π</span></button>
+              <button type="button" data-latex="\sqrt{#@}" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="\sqrt{\square}">√</span></button>
+              <button type="button" data-latex="\left|#@\right|" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold active:scale-95 transition flex items-center justify-center"><span class="vk-katex" data-katex="|x|">|x|</span></button>
+              <button type="button" data-latex="(" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 font-mono font-semibold text-xs active:scale-95 transition">(</button>
+              <button type="button" data-latex=")" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 font-mono font-semibold text-xs active:scale-95 transition">)</button>
+
+              <button type="button" data-cmd="moveToPreviousChar" title="סמן שמאלה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">←</button>
+              <button type="button" data-cmd="moveUp" title="עלה למעלה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">↑</button>
+              <button type="button" data-cmd="moveDown" title="רד למטה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">↓</button>
+              <button type="button" data-cmd="moveToNextChar" title="סמן ימינה" class="vk-key h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-mono font-bold text-xs active:scale-95 transition">→</button>
+              <button type="button" data-cmd="deleteBackward" title="מחק תו" class="vk-key h-8 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-900 font-mono font-bold text-xs active:scale-95 transition">⌫</button>
+              <button type="button" data-action="plot" title="אישור" class="vk-key h-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-mono font-bold text-xs active:scale-95 transition">↵</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- אזור מרכזי: רשימת תכונות מימין + גרף מוקטן וניתן להזזה משמאל -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+      <!-- צד ימין: רשימת תכונות הפונקציה (עם כפתור הסתר/הצג לכל תכונה) -->
+      <div class="lg:col-span-5 space-y-3">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-800">תכונות הפונקציה</h2>
+            <div class="text-xs text-slate-500">
+              עבור <span id="summary-fn-label" class="math-ltr font-semibold text-slate-700">f(x)</span>
+            </div>
+          </div>
+
+          <!-- כפתורי הצג הכל / הסתר הכל -->
+          <div class="flex items-center gap-1.5">
+            <button
+              id="show-all-props-btn"
+              type="button"
+              class="px-2.5 py-1 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold transition"
+            >
+              הצג הכל
+            </button>
+            <button
+              id="hide-all-props-btn"
+              type="button"
+              class="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition"
+            >
+              הסתר הכל
+            </button>
+          </div>
+        </div>
+
+        <!-- רשימת כרטיסי התכונות -->
+        <div class="space-y-2.5">
+
+          <!-- 1. נקודות סליקה -->
+          <div data-prop-card="holes" class="rounded-2xl border-2 border-rose-200 bg-rose-50/35 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-3.5 h-3.5 rounded-full border-[2.5px] border-rose-600 bg-white shrink-0"></span>
+                <h3 class="font-bold text-rose-900 text-sm sm:text-base truncate">נקודות סליקה (חורים בגרף)</h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-layer-sync="holes"
+                  title="הצג או הסתר נקודות סליקה על הגרף"
+                  class="prop-layer-btn px-2 py-1 rounded-lg border border-rose-300 bg-rose-100/80 text-rose-900 text-[11px] font-semibold transition"
+                >
+                  בגרף ✓
+                </button>
+                <button
+                  type="button"
+                  data-toggle-prop="holes"
+                  aria-expanded="false"
+                  class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-rose-200 bg-white hover:bg-rose-100/60 text-rose-900 text-xs font-semibold transition"
+                >
+                  <span class="prop-vis-label">הצג</span>
+                </button>
+              </div>
+            </div>
+            <div id="summary-holes" data-prop-body="holes" class="hidden text-sm text-slate-700 space-y-2 mt-2.5"></div>
+          </div>
+
+          <!-- 2. תחום הגדרה -->
+          <div data-prop-card="domain" class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-700 shrink-0"></span>
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base truncate">תחום הגדרה</h3>
+              </div>
+              <button
+                type="button"
+                data-toggle-prop="domain"
+                aria-expanded="false"
+                class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition shrink-0"
+              >
+                <span class="prop-vis-label">הצג</span>
+              </button>
+            </div>
+            <div id="summary-domain" data-prop-body="domain" class="hidden text-sm text-slate-700 space-y-1.5 mt-2.5"></div>
+          </div>
+
+          <!-- 3. נגזרת הפונקציה -->
+          <div data-prop-card="derivative" class="rounded-2xl border border-indigo-200 bg-indigo-50/30 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-3.5 h-0.5 border-t-2 border-dashed border-orange-500 shrink-0"></span>
+                <h3 class="font-bold text-indigo-950 text-sm sm:text-base truncate">נגזרת הפונקציה <span class="vk-katex katex-ltr text-indigo-700" data-katex="f'(x)">f'(x)</span></h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-layer-sync="derivative"
+                  title="הצג או הסתר גרף נגזרת"
+                  class="prop-layer-btn px-2 py-1 rounded-lg border border-slate-200 bg-white text-slate-500 text-[11px] font-semibold transition"
+                >
+                  בגרף
+                </button>
+                <button
+                  type="button"
+                  data-toggle-prop="derivative"
+                  aria-expanded="false"
+                  class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-100/60 text-indigo-900 text-xs font-semibold transition"
+                >
+                  <span class="prop-vis-label">הצג</span>
+                </button>
+              </div>
+            </div>
+            <div id="summary-derivative" data-prop-body="derivative" class="hidden text-sm text-slate-700 space-y-2 mt-2.5"></div>
+          </div>
+
+          <!-- 4. תחום עלייה ותחום ירידה -->
+          <div data-prop-card="monotonicity" class="rounded-2xl border border-emerald-200 bg-emerald-50/25 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0"></span>
+                <h3 class="font-bold text-emerald-950 text-sm sm:text-base truncate">תחום עלייה, ירידה וקיצון</h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-layer-sync="extrema"
+                  title="הצג או הסתר נקודות קיצון על הגרף"
+                  class="prop-layer-btn px-2 py-1 rounded-lg border border-emerald-300 bg-emerald-100/80 text-emerald-900 text-[11px] font-semibold transition"
+                >
+                  בגרף ✓
+                </button>
+                <button
+                  type="button"
+                  data-toggle-prop="monotonicity"
+                  aria-expanded="false"
+                  class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-100/60 text-emerald-900 text-xs font-semibold transition"
+                >
+                  <span class="prop-vis-label">הצג</span>
+                </button>
+              </div>
+            </div>
+            <div id="summary-monotonicity" data-prop-body="monotonicity" class="hidden text-sm text-slate-700 space-y-2.5 mt-2.5"></div>
+          </div>
+
+          <!-- 5. נקודות פיתול -->
+          <div data-prop-card="inflection" class="rounded-2xl border border-amber-200 bg-amber-50/35 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-2.5 h-2.5 rotate-45 bg-amber-500 shrink-0"></span>
+                <h3 class="font-bold text-amber-950 text-sm sm:text-base truncate">נקודות פיתול</h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-layer-sync="inflection"
+                  title="הצג או הסתר נקודות פיתול על הגרף"
+                  class="prop-layer-btn px-2 py-1 rounded-lg border border-amber-300 bg-amber-100/80 text-amber-900 text-[11px] font-semibold transition"
+                >
+                  בגרף ✓
+                </button>
+                <button
+                  type="button"
+                  data-toggle-prop="inflection"
+                  aria-expanded="false"
+                  class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-amber-200 bg-white hover:bg-amber-100/60 text-amber-900 text-xs font-semibold transition"
+                >
+                  <span class="prop-vis-label">הצג</span>
+                </button>
+              </div>
+            </div>
+            <div id="summary-inflection" data-prop-body="inflection" class="hidden text-sm text-slate-700 space-y-2 mt-2.5"></div>
+          </div>
+
+          <!-- 6. תחומי קעירות -->
+          <div data-prop-card="concavity" class="rounded-2xl border border-purple-200 bg-purple-50/25 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-600 shrink-0"></span>
+                <h3 class="font-bold text-purple-950 text-sm sm:text-base truncate">תחומי קעירות</h3>
+              </div>
+              <button
+                type="button"
+                data-toggle-prop="concavity"
+                aria-expanded="false"
+                class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-purple-200 bg-white hover:bg-purple-100/60 text-purple-900 text-xs font-semibold transition shrink-0"
+              >
+                <span class="prop-vis-label">הצג</span>
+              </button>
+            </div>
+            <div id="summary-concavity" data-prop-body="concavity" class="hidden text-sm text-slate-700 space-y-2.5 mt-2.5"></div>
+          </div>
+
+          <!-- 7. אסימפטוטות אנכיות -->
+          <div data-prop-card="va" class="rounded-2xl border border-violet-200 bg-violet-50/30 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-3.5 h-0.5 border-t-2 border-dashed border-violet-600 shrink-0"></span>
+                <h3 class="font-bold text-violet-900 text-sm sm:text-base truncate">אסימפטוטות אנכיות</h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-layer-sync="va"
+                  title="הצג או הסתר אסימפטוטות אנכיות על הגרף"
+                  class="prop-layer-btn px-2 py-1 rounded-lg border border-violet-300 bg-violet-100/80 text-violet-900 text-[11px] font-semibold transition"
+                >
+                  בגרף ✓
+                </button>
+                <button
+                  type="button"
+                  data-toggle-prop="va"
+                  aria-expanded="false"
+                  class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-violet-200 bg-white hover:bg-violet-100/60 text-violet-900 text-xs font-semibold transition"
+                >
+                  <span class="prop-vis-label">הצג</span>
+                </button>
+              </div>
+            </div>
+            <div id="summary-va" data-prop-body="va" class="hidden text-sm text-slate-700 space-y-1.5 mt-2.5"></div>
+          </div>
+
+          <!-- 8. אסימפטוטות אופקיות / משופעות -->
+          <div data-prop-card="ha" class="rounded-2xl border border-sky-200 bg-sky-50/30 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-3.5 h-0.5 border-t-2 border-dashed border-sky-600 shrink-0"></span>
+                <h3 class="font-bold text-sky-900 text-sm sm:text-base truncate">אסימפטוטות אופקיות / משופעות</h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-layer-sync="ha"
+                  title="הצג או הסתר אסימפטוטות אופקיות או משופעות על הגרף"
+                  class="prop-layer-btn px-2 py-1 rounded-lg border border-sky-300 bg-sky-100/80 text-sky-900 text-[11px] font-semibold transition"
+                >
+                  בגרף ✓
+                </button>
+                <button
+                  type="button"
+                  data-toggle-prop="ha"
+                  aria-expanded="false"
+                  class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-sky-200 bg-white hover:bg-sky-100/60 text-sky-900 text-xs font-semibold transition"
+                >
+                  <span class="prop-vis-label">הצג</span>
+                </button>
+              </div>
+            </div>
+            <div id="summary-ha" data-prop-body="ha" class="hidden text-sm text-slate-700 space-y-1.5 mt-2.5"></div>
+          </div>
+
+          <!-- 9. נקודות חיתוך עם הצירים -->
+          <div data-prop-card="intercepts" class="rounded-2xl border border-teal-200 bg-teal-50/30 p-3.5 shadow-2xs transition-all">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-teal-600 shrink-0"></span>
+                <h3 class="font-bold text-teal-900 text-sm sm:text-base truncate">נקודות חיתוך עם הצירים</h3>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  data-layer-sync="intercepts"
+                  title="הצג או הסתר נקודות חיתוך על הגרף"
+                  class="prop-layer-btn px-2 py-1 rounded-lg border border-teal-300 bg-teal-100/80 text-teal-900 text-[11px] font-semibold transition"
+                >
+                  בגרף ✓
+                </button>
+                <button
+                  type="button"
+                  data-toggle-prop="intercepts"
+                  aria-expanded="false"
+                  class="prop-vis-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-teal-200 bg-white hover:bg-teal-100/60 text-teal-900 text-xs font-semibold transition"
+                >
+                  <span class="prop-vis-label">הצג</span>
+                </button>
+              </div>
+            </div>
+            <div id="summary-intercepts" data-prop-body="intercepts" class="hidden text-sm text-slate-700 space-y-2 mt-2.5"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- צד שמאל: מערכת הצירים וגרף הפונקציה (בפתיחה הגרף מוסתר ומערכת הצירים מוצגת) -->
+      <div class="lg:col-span-7 lg:sticky lg:top-20 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- כותרת מערכת הצירים וכפתור הצגת/הסתרת הגרף -->
+        <div class="px-3.5 sm:px-4 py-2.5 border-b border-slate-200 bg-white flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+            <h2 class="text-sm sm:text-base font-bold text-slate-800">מערכת הצירים</h2>
+          </div>
+          <button
+            id="curve-toggle-btn"
+            type="button"
+            aria-expanded="false"
+            title="הצג או הסתר את גרף הפונקציה על מערכת הצירים"
+            class="px-3 py-1 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold transition"
+          >
+            הצג גרף
+          </button>
+        </div>
+
+        <div id="graph-panel-body">
+          <!-- סרגל שכבות, הזזת לוח וזום -->
+          <div class="px-3.5 sm:px-4 py-2.5 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2.5">
+            <!-- מתגי הצגת שכבות על הגרף -->
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none font-medium text-rose-800">
+                <input id="toggle-holes" type="checkbox" class="w-3.5 h-3.5 rounded accent-rose-600 cursor-pointer" />
+                <span>סליקה</span>
+              </label>
+
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none font-medium text-violet-800">
+                <input id="toggle-va" type="checkbox" class="w-3.5 h-3.5 rounded accent-violet-600 cursor-pointer" />
+                <span>אנכיות</span>
+              </label>
+
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none font-medium text-sky-800">
+                <input id="toggle-ha" type="checkbox" class="w-3.5 h-3.5 rounded accent-sky-600 cursor-pointer" />
+                <span>אופקיות/משופעות</span>
+              </label>
+
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none font-medium text-teal-800">
+                <input id="toggle-intercepts" type="checkbox" class="w-3.5 h-3.5 rounded accent-teal-600 cursor-pointer" />
+                <span>חיתוך צירים</span>
+              </label>
+
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none font-medium text-emerald-800">
+                <input id="toggle-extrema" type="checkbox" class="w-3.5 h-3.5 rounded accent-emerald-600 cursor-pointer" />
+                <span>קיצון</span>
+              </label>
+
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none font-medium text-amber-800">
+                <input id="toggle-inflection" type="checkbox" class="w-3.5 h-3.5 rounded accent-amber-600 cursor-pointer" />
+                <span>פיתול</span>
+              </label>
+
+              <label class="inline-flex items-center gap-1.5 cursor-pointer select-none font-medium text-orange-800">
+                <input id="toggle-derivative" type="checkbox" class="w-3.5 h-3.5 rounded accent-orange-500 cursor-pointer" />
+                <span>נגזרת <span class="vk-katex katex-ltr" data-katex="f'(x)">f'(x)</span></span>
+              </label>
+            </div>
+
+            <!-- פקדי הזזת לוח (חצים) + זום + איפוס -->
+            <div class="flex items-center gap-1" dir="ltr">
+              <button id="pan-left-btn" type="button" title="הזז לוח שמאלה" class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition shadow-2xs">←</button>
+              <button id="pan-up-btn" type="button" title="הזז לוח למעלה" class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition shadow-2xs">↑</button>
+              <button id="pan-down-btn" type="button" title="הזז לוח למטה" class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition shadow-2xs">↓</button>
+              <button id="pan-right-btn" type="button" title="הזז לוח ימינה" class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition shadow-2xs">→</button>
+
+              <span class="w-px h-4 bg-slate-200 mx-0.5"></span>
+
+              <button
+                id="zoom-in-btn"
+                type="button"
+                title="הגדל תצוגה"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition shadow-2xs"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </button>
+              <button
+                id="zoom-out-btn"
+                type="button"
+                title="הקטן תצוגה"
+                class="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition shadow-2xs"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                </svg>
+              </button>
+              <button
+                id="reset-view-btn"
+                type="button"
+                dir="rtl"
+                class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition shadow-2xs"
+              >
+                איפוס
+              </button>
+            </div>
+          </div>
+
+          <!-- קנבס הגרף המוקטן והניתן להזזה -->
+          <div id="canvas-wrapper" class="relative w-full h-[330px] sm:h-[380px] lg:h-[420px] bg-white select-none">
+            <canvas id="graph-canvas" class="w-full h-full block"></canvas>
+
+            <!-- תצוגת קואורדינטות מרחפת -->
+            <div
+              id="hover-hud"
+              class="pointer-events-none absolute top-3 left-3 bg-white/95 backdrop-blur-sm border border-slate-200 shadow-md rounded-xl px-3 py-1.5 text-xs transition-opacity duration-150 opacity-0 max-w-[90%]"
+            >
+              <div id="hover-coords" class="math-ltr font-semibold text-slate-800"></div>
+              <div id="hover-note" class="text-[11px] text-rose-700 font-medium mt-0.5 hidden"></div>
+            </div>
+
+            <!-- רמז תפעול להזזת הלוח -->
+            <div class="pointer-events-none absolute bottom-2.5 right-2.5 bg-white/90 backdrop-blur-xs border border-slate-200/80 rounded-lg px-2.5 py-1 text-[11px] text-slate-500">
+              גררו את הלוח להזזה • גלגלת לזום • ריחוף לבדיקה
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- כותרת תחתונה -->
+  <footer class="border-t border-slate-200 bg-slate-50/70 py-5 mt-8">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-sm font-semibold text-slate-600">
+        הוכן על ידי רגינה צ'ולסקי
+      </p>
+    </div>
+  </footer>
+
+  <!-- קוד היישומון -->
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. ניהול מצב והפניות לרכיבי DOM
+      // =========================================================================
+      const state = {
+        latexString: '\\frac{x^2 - 1}{x^2 - 3x + 2}',
+        exprString: '(x^2 - 1) / (x^2 - 3*x + 2)',
+        compiledFn: null,
+        d1Compiled: null,
+        d1Latex: '',
+        d1Info: null,
+        d2Compiled: null,
+        denominators: [],
+        view: {
+          xMin: -8,
+          xMax: 8,
+          yMin: -6,
+          yMax: 6
+        },
+        analysis: {
+          holes: [],                // { x, y, leftLim, rightLim }
+          verticalAsymptotes: [],   // { x }
+          endAsymptotes: [],        // { type: 'horizontal'|'oblique', m, n, dir: 'both'|'pos'|'neg', label }
+          xIntercepts: [],          // { x, y: 0 }
+          yIntercept: null,         // { x: 0, y } או null
+          domainExclusions: [],     // רשימת ערכי x שבהם הפונקציה אינה מוגדרת
+          domainIntervals: [],      // [{ start, end, leftOpen, rightOpen }]
+          extrema: [],              // [{ x, y, type: 'max'|'min' }]
+          increasingIntervals: [],  // [{ start, end }]
+          decreasingIntervals: [],  // [{ start, end }]
+          inflectionPoints: [],     // [{ x, y, from: 'up'|'down', to: 'up'|'down' }]
+          concaveUpIntervals: [],   // [{ start, end }]
+          concaveDownIntervals: []  // [{ start, end }]
+        },
+        layers: {
+          curve: false,
+          holes: false,
+          va: false,
+          ha: false,
+          intercepts: false,
+          extrema: false,
+          inflection: false,
+          derivative: false
+        },
+        isRawLatexMode: false,
+        interaction: {
+          isDragging: false,
+          dragStartPx: { x: 0, y: 0 },
+          dragStartView: null,
+          hoverPx: null,
+          pinchDist: null
+        }
+      };
+
+      const dom = {
+        mathInput: document.getElementById('math-input'),
+        fallbackInput: document.getElementById('func-input-fallback'),
+        latexModeBtn: document.getElementById('latex-mode-btn'),
+        clearBtn: document.getElementById('clear-btn'),
+        katexPreview: document.getElementById('katex-preview'),
+        errorBanner: document.getElementById('error-banner'),
+        errorText: document.getElementById('error-text'),
+        vkToggleBtn: document.getElementById('vk-toggle-btn'),
+        vkTabsBar: document.getElementById('vk-tabs-bar'),
+        vkPanel: document.getElementById('virtual-keyboard'),
+        curveToggleBtn: document.getElementById('curve-toggle-btn'),
+        graphPanelBody: document.getElementById('graph-panel-body'),
+        canvasWrapper: document.getElementById('canvas-wrapper'),
+        canvas: document.getElementById('graph-canvas'),
+        hoverHud: document.getElementById('hover-hud'),
+        hoverCoords: document.getElementById('hover-coords'),
+        hoverNote: document.getElementById('hover-note'),
+        toggleHoles: document.getElementById('toggle-holes'),
+        toggleVa: document.getElementById('toggle-va'),
+        toggleHa: document.getElementById('toggle-ha'),
+        toggleIntercepts: document.getElementById('toggle-intercepts'),
+        toggleExtrema: document.getElementById('toggle-extrema'),
+        toggleInflection: document.getElementById('toggle-inflection'),
+        toggleDerivative: document.getElementById('toggle-derivative'),
+        panLeftBtn: document.getElementById('pan-left-btn'),
+        panUpBtn: document.getElementById('pan-up-btn'),
+        panDownBtn: document.getElementById('pan-down-btn'),
+        panRightBtn: document.getElementById('pan-right-btn'),
+        zoomInBtn: document.getElementById('zoom-in-btn'),
+        zoomOutBtn: document.getElementById('zoom-out-btn'),
+        resetViewBtn: document.getElementById('reset-view-btn'),
+        showAllPropsBtn: document.getElementById('show-all-props-btn'),
+        hideAllPropsBtn: document.getElementById('hide-all-props-btn'),
+        summaryFnLabel: document.getElementById('summary-fn-label'),
+        summaryHoles: document.getElementById('summary-holes'),
+        summaryDomain: document.getElementById('summary-domain'),
+        summaryDerivative: document.getElementById('summary-derivative'),
+        summaryMonotonicity: document.getElementById('summary-monotonicity'),
+        summaryInflection: document.getElementById('summary-inflection'),
+        summaryConcavity: document.getElementById('summary-concavity'),
+        summaryVa: document.getElementById('summary-va'),
+        summaryHa: document.getElementById('summary-ha'),
+        summaryIntercepts: document.getElementById('summary-intercepts')
+      };
+
+      const ctx = dom.canvas.getContext('2d');
+
+      // =========================================================================
+      // 2. כלי עזר לעיצוב מספרים ומשוואות (כיווניות LTR קשיחה)
+      // =========================================================================
+      function formatNum(val, decimals = 3) {
+        if (!Number.isFinite(val)) return 'NaN';
+        if (Math.abs(val) < 1e-9) return '0';
+        const rounded = Math.round(val * Math.pow(10, decimals)) / Math.pow(10, decimals);
+        if (Math.abs(rounded - Math.round(rounded)) < 1e-7) {
+          return String(Math.round(rounded));
+        }
+        return String(rounded);
+      }
+
+      function formatCoordPair(x, y) {
+        return `(${formatNum(x)}, ${formatNum(y)})`;
+      }
+
+      function formatLinearEq(m, n) {
+        const mClean = Math.abs(m) < 1e-5 ? 0 : m;
+        const nClean = Math.abs(n) < 1e-5 ? 0 : n;
+        if (mClean === 0) {
+          return `y = ${formatNum(nClean)}`;
+        }
+        let mPart = '';
+        if (Math.abs(mClean - 1) < 1e-5) mPart = 'x';
+        else if (Math.abs(mClean + 1) < 1e-5) mPart = '-x';
+        else mPart = `${formatNum(mClean)}x`;
+
+        if (nClean === 0) return `y = ${mPart}`;
+        const sign = nClean > 0 ? ' + ' : ' - ';
+        return `y = ${mPart}${sign}${formatNum(Math.abs(nClean))}`;
+      }
+
+      function formatInterval(iv) {
+        if (iv.start === -Infinity && iv.end === Infinity) {
+          return 'x \\in \\mathbb{R}';
+        }
+        if (iv.start === -Infinity) {
+          const op = iv.rightOpen ? '<' : '\\le';
+          return `x ${op} ${formatNum(iv.end)}`;
+        }
+        if (iv.end === Infinity) {
+          const op = iv.leftOpen ? '>' : '\\ge';
+          return `x ${op} ${formatNum(iv.start)}`;
+        }
+        const opL = iv.leftOpen ? '<' : '\\le';
+        const opR = iv.rightOpen ? '<' : '\\le';
+        return `${formatNum(iv.start)} ${opL} x ${opR} ${formatNum(iv.end)}`;
+      }
+
+      function renderKatexHtml(tex, displayMode = false) {
+        if (typeof katex !== 'undefined') {
+          try {
+            const rendered = katex.renderToString(tex, { throwOnError: false, displayMode });
+            return displayMode
+              ? `<div class="katex-ltr w-full overflow-x-auto py-0.5">${rendered}</div>`
+              : `<span class="katex-ltr">${rendered}</span>`;
+          } catch (_) {}
+        }
+        return `<span class="math-ltr">${tex}</span>`;
+      }
+
+      function renderLivePreview(latex) {
+        if (!dom.katexPreview) return;
+        if (!latex) {
+          dom.katexPreview.textContent = '';
+          return;
+        }
+        if (typeof katex !== 'undefined') {
+          try {
+            katex.render(`f(x) = ${latex}`, dom.katexPreview, { throwOnError: false });
+            return;
+          } catch (_) {}
+        }
+        dom.katexPreview.textContent = `f(x) = ${latex}`;
+      }
+
+      // =========================================================================
+      // 3. המרת LaTeX לביטוי math.js והערכה בטוחה
+      // =========================================================================
+      function findMatchingBrace(str, openIdx) {
+        let depth = 0;
+        for (let i = openIdx; i < str.length; i++) {
+          if (str[i] === '{') depth++;
+          else if (str[i] === '}') {
+            depth--;
+            if (depth === 0) return i;
+          }
+        }
+        return -1;
+      }
+
+      function replaceCommandTwoArgs(str, cmd, replacer) {
+        let out = str;
+        let idx = out.indexOf(cmd);
+        while (idx !== -1) {
+          const open1 = out.indexOf('{', idx + cmd.length);
+          if (open1 === -1) break;
+          const close1 = findMatchingBrace(out, open1);
+          if (close1 === -1) break;
+          const open2 = out.indexOf('{', close1 + 1);
+          if (open2 === -1) break;
+          const close2 = findMatchingBrace(out, open2);
+          if (close2 === -1) break;
+
+          const arg1 = out.slice(open1 + 1, close1);
+          const arg2 = out.slice(open2 + 1, close2);
+          out = out.slice(0, idx) + replacer(arg1, arg2) + out.slice(close2 + 1);
+          idx = out.indexOf(cmd);
+        }
+        return out;
+      }
+
+      function replaceCommandOneArg(str, cmd, replacer) {
+        let out = str;
+        let idx = out.indexOf(cmd);
+        while (idx !== -1) {
+          const open1 = out.indexOf('{', idx + cmd.length);
+          if (open1 === -1) break;
+          const close1 = findMatchingBrace(out, open1);
+          if (close1 === -1) break;
+
+          const arg1 = out.slice(open1 + 1, close1);
+          out = out.slice(0, idx) + replacer(arg1) + out.slice(close1 + 1);
+          idx = out.indexOf(cmd);
+        }
+        return out;
+      }
+
+      function latexToMathJs(rawLatex) {
+        if (!rawLatex) return '';
+        let s = String(rawLatex)
+          .trim()
+          .replace(/^f\s*\(\s*x\s*\)\s*=/i, '')
+          .replace(/^y\s*=/i, '')
+          .replace(/\\displaystyle/g, '')
+          .replace(/\\left\s*\(/g, '(')
+          .replace(/\\right\s*\)/g, ')')
+          .replace(/\\left\s*\[/g, '(')
+          .replace(/\\right\s*\]/g, ')')
+          .replace(/\\left\s*\|/g, 'abs(')
+          .replace(/\\right\s*\|/g, ')')
+          .replace(/\\cdot/g, '*')
+          .replace(/\\times/g, '*')
+          .replace(/\\div/g, '/')
+          .replace(/−/g, '-')
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/');
+
+        // החלפת ערך מוחלט רגיל |...|
+        s = s.replace(/\|([^|]+)\|/g, 'abs($1)');
+
+        // שורש שלישי או כללי \sqrt[n]{...}
+        s = s.replace(/\\sqrt\[([^\]]+)\]\{([^{}]+)\}/g, 'nthRoot($2, $1)');
+        // שורש ריבועי \sqrt{...}
+        s = replaceCommandOneArg(s, '\\sqrt', (a) => `sqrt(${a})`);
+        // שברים בנויים \frac{a}{b} (כולל מקוננים)
+        s = replaceCommandTwoArgs(s, '\\frac', (a, b) => `((${a})/(${b}))`);
+        s = replaceCommandTwoArgs(s, '\\dfrac', (a, b) => `((${a})/(${b}))`);
+
+        // פונקציות טריגונומטריות הפוכות
+        s = s
+          .replace(/\\sin\^\{-1\}/g, 'asin')
+          .replace(/\\cos\^\{-1\}/g, 'acos')
+          .replace(/\\tan\^\{-1\}/g, 'atan')
+          .replace(/\\arcsin/g, 'asin')
+          .replace(/\\arccos/g, 'acos')
+          .replace(/\\arctan/g, 'atan')
+          .replace(/\\sin/g, 'sin')
+          .replace(/\\cos/g, 'cos')
+          .replace(/\\tan/g, 'tan')
+          .replace(/\\ln/g, 'log')
+          .replace(/\\log_\{10\}/g, 'log10')
+          .replace(/\\log_10/g, 'log10')
+          .replace(/\\log/g, 'log10')
+          .replace(/\\pi/g, 'pi')
+          .replace(/\\exponentialE/g, 'e')
+          .replace(/\\mathrm\{e\}/g, 'e');
+
+        // חזקות עם סוגריים מסולסלים ^{...}
+        s = s.replace(/\^\{([^{}]+)\}/g, '^($1)');
+        // המרת סוגריים מסולסלים נותרים לסוגריים עגולים
+        s = s.replace(/\{/g, '(').replace(/\}/g, ')');
+
+        // הסרת רווחי LaTeX כגון \, \; \! \quad
+        s = s.replace(/\\[,;! ]/g, ' ').replace(/\\quad/g, ' ');
+
+        // כפל מרומז: 2x -> 2*x, )x -> )*x, )( -> )*(, x( -> x*(
+        s = s
+          .replace(/(\d)\s*([a-zA-Z(])/g, '$1*$2')
+          .replace(/\)\s*\(/g, ')*(')
+          .replace(/\)\s*([a-zA-Z0-9])/g, ')*$1')
+          .replace(/\b(x|pi|e)\s*\(/g, '$1*(')
+          .replace(/\b(x|pi|e)\s+(x|pi|e|sin|cos|tan|asin|acos|atan|log|log10|sqrt|abs)\b/g, '$1*$2');
+
+        return s.trim();
+      }
+
+      function extractDenominators(node) {
+        const denoms = [];
+        node.traverse((child) => {
+          if (child.isOperatorNode && child.op === '/' && child.args && child.args[1]) {
+            try {
+              denoms.push(child.args[1].compile());
+            } catch (_) {}
+          }
+          if (child.isOperatorNode && child.op === '^' && child.args && child.args[1]) {
+            try {
+              const expVal = child.args[1].evaluate({ x: 1 });
+              if (typeof expVal === 'number' && expVal < 0) {
+                denoms.push(child.args[0].compile());
+              }
+            } catch (_) {}
+          }
+        });
+        return denoms;
+      }
+
+      function evalRaw(x) {
+        if (!state.compiledFn) return NaN;
+        try {
+          const res = state.compiledFn.evaluate({ x });
+          if (typeof res === 'number') return res;
+          return NaN;
+        } catch (_) {
+          return NaN;
+        }
+      }
+
+      function evalStrict(x) {
+        for (let i = 0; i < state.denominators.length; i++) {
+          try {
+            const dVal = state.denominators[i].evaluate({ x });
+            if (typeof dVal === 'number' && Math.abs(dVal) < 1e-11) {
+              return NaN;
+            }
+          } catch (_) {
+            return NaN;
+          }
+        }
+        const v = evalRaw(x);
+        if (!Number.isFinite(v) || Math.abs(v) > 1e12) return NaN;
+        return v;
+      }
+
+      function evalD1(x) {
+        if (state.d1Compiled) {
+          try {
+            const v = state.d1Compiled.evaluate({ x });
+            if (typeof v === 'number' && Number.isFinite(v) && Math.abs(v) < 1e12) {
+              return v;
+            }
+          } catch (_) {}
+        }
+        const h = 1e-5;
+        const fPlus = evalStrict(x + h);
+        const fMinus = evalStrict(x - h);
+        if (Number.isFinite(fPlus) && Number.isFinite(fMinus)) {
+          return (fPlus - fMinus) / (2 * h);
+        }
+        return NaN;
+      }
+
+      function evalD2(x) {
+        if (state.d2Compiled) {
+          try {
+            const v = state.d2Compiled.evaluate({ x });
+            if (typeof v === 'number' && Number.isFinite(v) && Math.abs(v) < 1e12) {
+              return v;
+            }
+          } catch (_) {}
+        }
+        const h = 1e-4;
+        const dPlus = evalD1(x + h);
+        const dMinus = evalD1(x - h);
+        if (Number.isFinite(dPlus) && Number.isFinite(dMinus)) {
+          return (dPlus - dMinus) / (2 * h);
+        }
+        return NaN;
+      }
+
+      // =========================================================================
+      // 3.5 בניית תבנית נגזרת מסודרת ומפושטת ב-LaTeX
+      // =========================================================================
+      function safeSimplify(node) {
+        try {
+          return math.simplify(node);
+        } catch (_) {
+          return node;
+        }
+      }
+
+      function nodeDependsOnX(node) {
+        let found = false;
+        node.traverse((child) => {
+          if (child.isSymbolNode && child.name === 'x') found = true;
+        });
+        return found;
+      }
+
+      function unwrapParens(node) {
+        let curr = node;
+        while (curr && curr.isParenthesisNode) {
+          curr = curr.content;
+        }
+        return curr;
+      }
+
+      function cleanMathLatex(tex) {
+        if (!tex) return '';
+        return String(tex)
+          // המרת לוגריתם טבעי מ-\log ל-\ln (תוך שמירה על \log_{10})
+          .replace(/\\log(?![_0-9a-zA-Z])/g, '\\ln')
+          // הסרת נקודת כפל מיותרת בין מקדם מספרי למשתנה, סוגריים או פונקציה
+          .replace(/(\d)\s*\\cdot\s*([a-zA-Z\\(])/g, '$1$2')
+          .replace(/(\\right[\)\]|])\s*\\cdot\s*(\\left[\(\[\|]|[a-zA-Z\\])/g, '$1$2')
+          .replace(/([a-zA-Z])\s*\\cdot\s*(\\left[\(\[\|])/g, '$1$2')
+          // ניקוי סימנים כפולים
+          .replace(/\+\s*-/g, '- ')
+          .replace(/-\s*-/g, '+ ')
+          .trim();
+      }
+
+      function nodeToCleanTex(node) {
+        try {
+          return cleanMathLatex(node.toTex({ parenthesis: 'auto' }));
+        } catch (_) {
+          return '';
+        }
+      }
+
+      function wrapIfCompound(node, texStr) {
+        const core = unwrapParens(node);
+        if (!core) return texStr;
+        if (core.isOperatorNode && (core.op === '+' || core.op === '-' || core.fn === 'unaryMinus')) {
+          return `\\left(${texStr}\\right)`;
+        }
+        if (core.isOperatorNode && (core.op === '*' || core.op === '/')) {
+          return `\\left(${texStr}\\right)`;
+        }
+        return texStr;
+      }
+
+      function formatPolynomialCoefficientsToTex(coeffs) {
+        // coeffs הוא מערך [c0, c1, c2, ...] של מקדמי חזקות x בסדר עולה
+        const terms = [];
+        for (let deg = coeffs.length - 1; deg >= 0; deg--) {
+          const c = coeffs[deg];
+          if (typeof c !== 'number' || Math.abs(c) < 1e-10) continue;
+
+          const isNeg = c < 0;
+          const absC = Math.abs(c);
+          const coeffStr = formatNum(absC, 5);
+
+          let varPart = '';
+          if (deg === 1) varPart = 'x';
+          else if (deg > 1) varPart = `x^{${deg}}`;
+
+          let body = '';
+          if (deg === 0) {
+            body = coeffStr;
+          } else if (Math.abs(absC - 1) < 1e-9) {
+            body = varPart;
+          } else {
+            body = `${coeffStr}${varPart}`;
+          }
+
+          if (terms.length === 0) {
+            terms.push(isNeg ? `-${body}` : body);
+          } else {
+            terms.push(isNeg ? ` - ${body}` : ` + ${body}`);
+          }
+        }
+        return terms.length > 0 ? terms.join('') : '0';
+      }
+
+      function tryFormatAsCleanPolynomial(node) {
+        try {
+          const rat = math.rationalize(node, {}, true);
+          if (rat && Array.isArray(rat.coefficients) && rat.variables && rat.variables.length <= 1) {
+            if (rat.variables.length === 0 || rat.variables[0] === 'x') {
+              const allNums = rat.coefficients.every((c) => typeof c === 'number' && Number.isFinite(c));
+              if (allNums) {
+                return formatPolynomialCoefficientsToTex(rat.coefficients);
+              }
+            }
+          }
+        } catch (_) {}
+        return null;
+      }
+
+      function buildSquaredDenominatorTex(vNode) {
+        const core = unwrapParens(vNode);
+        if (core && core.isOperatorNode && core.op === '^') {
+          const base = unwrapParens(core.args[0]);
+          const expNode = unwrapParens(core.args[1]);
+          if (expNode && expNode.isConstantNode && typeof expNode.value === 'number') {
+            const newExp = expNode.value * 2;
+            const baseTex = wrapIfCompound(base, nodeToCleanTex(base));
+            return `${baseTex}^{${formatNum(newExp, 4)}}`;
+          }
+        }
+        const vTex = nodeToCleanTex(core);
+        return `${wrapIfCompound(core, vTex)}^{2}`;
+      }
+
+      function buildNeatDerivative(node) {
+        const rawD1 = math.derivative(node, 'x');
+        const compiled = rawD1.compile();
+        const core = unwrapParens(node);
+
+        // מקרה 1: פונקציית מנה f(x) = u(x) / v(x)
+        if (core && core.isOperatorNode && core.op === '/' && core.args && core.args.length === 2) {
+          const u = unwrapParens(core.args[0]);
+          const v = unwrapParens(core.args[1]);
+          const uSimple = safeSimplify(u);
+          const vSimple = safeSimplify(v);
+          const uPrime = safeSimplify(math.derivative(u, 'x'));
+          const vPrime = safeSimplify(math.derivative(v, 'x'));
+
+          const uTex = nodeToCleanTex(uSimple);
+          const vTex = nodeToCleanTex(vSimple);
+          const uPrimeTex = nodeToCleanTex(uPrime);
+          const vPrimeTex = nodeToCleanTex(vPrime);
+
+          const uSub = wrapIfCompound(uSimple, uTex);
+          const vSub = wrapIfCompound(vSimple, vTex);
+          const uPrimeSub = wrapIfCompound(uPrime, uPrimeTex);
+          const vPrimeSub = wrapIfCompound(vPrime, vPrimeTex);
+          const denomSqTex = buildSquaredDenominatorTex(vSimple);
+
+          // בניית המונה u'(x)*v(x) - u(x)*v'(x) וכינוס איברים דומים
+          const numRawNode = new math.OperatorNode('-', 'subtract', [
+            new math.OperatorNode('*', 'multiply', [uPrime, vSimple]),
+            new math.OperatorNode('*', 'multiply', [uSimple, vPrime])
+          ]);
+
+          let cleanNumTex = tryFormatAsCleanPolynomial(numRawNode);
+          if (!cleanNumTex) {
+            cleanNumTex = nodeToCleanTex(safeSimplify(numRawNode));
+          }
+
+          // הוצאת סימן מינוס לפני השבר כאשר המונה הוא קבוע שלילי יחיד
+          let neatLatex = '';
+          const negConstMatch = cleanNumTex.match(/^-(\d+(?:\.\d+)?)$/);
+          if (negConstMatch) {
+            neatLatex = `-\\frac{${negConstMatch[1]}}{${denomSqTex}}`;
+          } else {
+            neatLatex = `\\frac{${cleanNumTex}}{${denomSqTex}}`;
+          }
+
+          return {
+            compiled,
+            neatLatex,
+            ruleName: 'כלל המנה',
+            ruleFormulaLatex: "f'(x) = \\frac{u'(x)\\cdot v(x) - u(x)\\cdot v'(x)}{\\left[v(x)\\right]^2}",
+            componentsLatex: `u(x) = ${uTex}, \\quad u'(x) = ${uPrimeTex} \\\\\\\\ v(x) = ${vTex}, \\quad v'(x) = ${vPrimeTex}`,
+            substitutionLatex: `f'(x) = \\frac{${uPrimeSub} \\cdot ${vSub} - ${uSub} \\cdot ${vPrimeSub}}{${denomSqTex}}`
+          };
+        }
+
+        // מקרה 2: מכפלה של שתי פונקציות התלויות ב-x
+        if (core && core.isOperatorNode && core.op === '*' && core.args && core.args.length === 2) {
+          const u = unwrapParens(core.args[0]);
+          const v = unwrapParens(core.args[1]);
+          if (nodeDependsOnX(u) && nodeDependsOnX(v)) {
+            const uSimple = safeSimplify(u);
+            const vSimple = safeSimplify(v);
+            const uPrime = safeSimplify(math.derivative(u, 'x'));
+            const vPrime = safeSimplify(math.derivative(v, 'x'));
+
+            const uTex = nodeToCleanTex(uSimple);
+            const vTex = nodeToCleanTex(vSimple);
+            const uPrimeTex = nodeToCleanTex(uPrime);
+            const vPrimeTex = nodeToCleanTex(vPrime);
+
+            const uSub = wrapIfCompound(uSimple, uTex);
+            const vSub = wrapIfCompound(vSimple, vTex);
+            const uPrimeSub = wrapIfCompound(uPrime, uPrimeTex);
+            const vPrimeSub = wrapIfCompound(vPrime, vPrimeTex);
+
+            let neatLatex = tryFormatAsCleanPolynomial(rawD1);
+            if (!neatLatex) {
+              neatLatex = nodeToCleanTex(safeSimplify(rawD1));
+            }
+
+            return {
+              compiled,
+              neatLatex,
+              ruleName: 'כלל המכפלה',
+              ruleFormulaLatex: "f'(x) = u'(x)\\cdot v(x) + u(x)\\cdot v'(x)",
+              componentsLatex: `u(x) = ${uTex}, \\quad u'(x) = ${uPrimeTex} \\\\\\\\ v(x) = ${vTex}, \\quad v'(x) = ${vPrimeTex}`,
+              substitutionLatex: `f'(x) = ${uPrimeSub} \\cdot ${vSub} + ${uSub} \\cdot ${vPrimeSub}`
+            };
+          }
+        }
+
+        // מקרה 3: שורש ריבועי f(x) = sqrt(g(x))
+        if (core && core.isFunctionNode && core.name === 'sqrt' && core.args && core.args.length === 1) {
+          const g = unwrapParens(core.args[0]);
+          const gSimple = safeSimplify(g);
+          const gPrime = safeSimplify(math.derivative(g, 'x'));
+          const gTex = nodeToCleanTex(gSimple);
+          const gPrimeTex = nodeToCleanTex(gPrime);
+          const simplifiedFull = nodeToCleanTex(safeSimplify(rawD1));
+
+          return {
+            compiled,
+            neatLatex: simplifiedFull || `\\frac{${gPrimeTex}}{2\\sqrt{${gTex}}}`,
+            ruleName: 'נגזרת שורש',
+            ruleFormulaLatex: "f'(x) = \\frac{g'(x)}{2\\sqrt{g(x)}}",
+            componentsLatex: `g(x) = ${gTex}, \\quad g'(x) = ${gPrimeTex}`,
+            substitutionLatex: `f'(x) = \\frac{${gPrimeTex}}{2\\sqrt{${gTex}}}`
+          };
+        }
+
+        // מקרה 4: פולינום, חזקה או פונקציה מורכבת
+        const isSumOrDiff = core && core.isOperatorNode && (core.op === '+' || core.op === '-' || core.fn === 'unaryMinus');
+        if (isSumOrDiff || (core && core.isSymbolNode)) {
+          const polyTex = tryFormatAsCleanPolynomial(rawD1);
+          if (polyTex) {
+            return {
+              compiled,
+              neatLatex: polyTex,
+              ruleName: 'גזירת פולינום / חזקה',
+              ruleFormulaLatex: "\\left(x^n\\right)' = n \\cdot x^{n-1}",
+              componentsLatex: '',
+              substitutionLatex: ''
+            };
+          }
+        }
+
+        const d1Simple = safeSimplify(rawD1);
+        const neatLatex = nodeToCleanTex(d1Simple);
+
+        let ruleName = 'כללי גזירה';
+        let ruleFormulaLatex = '';
+        if (core && core.isFunctionNode) {
+          if (['sin', 'cos', 'tan', 'asin', 'acos', 'atan'].includes(core.name)) {
+            ruleName = 'נגזרת פונקציה טריגונומטרית';
+          } else if (['log', 'log10', 'exp'].includes(core.name)) {
+            ruleName = 'נגזרת פונקציה לוגריתמית / מעריכית';
+          }
+        } else if (core && core.isOperatorNode && core.op === '^') {
+          ruleName = 'כלל החזקה והשרשרת';
+          ruleFormulaLatex = "\\left[u(x)^n\\right]' = n \\cdot u(x)^{n-1} \\cdot u'(x)";
+        }
+
+        return {
+          compiled,
+          neatLatex,
+          ruleName,
+          ruleFormulaLatex,
+          componentsLatex: '',
+          substitutionLatex: ''
+        };
+      }
+
+      // =========================================================================
+      // 4. מנוע חקירת הפונקציה (סליקה, אסימפטוטות, חיתוך, קיצון, פיתול וקעירות)
+      // =========================================================================
+      function dedupeNumbers(arr, tol = 1e-3) {
+        const sorted = [...arr].sort((a, b) => a - b);
+        const out = [];
+        for (const val of sorted) {
+          const nearestInt = Math.round(val);
+          const clean = Math.abs(val - nearestInt) < 1e-5 ? nearestInt : val;
+          if (out.length === 0 || Math.abs(clean - out[out.length - 1]) > tol) {
+            out.push(clean);
+          }
+        }
+        return out;
+      }
+
+      function findCandidateSingularities() {
+        const candidates = [];
+
+        for (let p = -40; p <= 40; p++) {
+          for (let q = 1; q <= 6; q++) {
+            const x = p / q;
+            if (!Number.isFinite(evalStrict(x))) {
+              const leftOk = Number.isFinite(evalStrict(x - 1e-3));
+              const rightOk = Number.isFinite(evalStrict(x + 1e-3));
+              if (leftOk || rightOk) {
+                candidates.push(x);
+              }
+            }
+          }
+        }
+
+        for (const denom of state.denominators) {
+          const evalD = (x) => {
+            try {
+              const v = denom.evaluate({ x });
+              return typeof v === 'number' && Number.isFinite(v) ? v : NaN;
+            } catch (_) {
+              return NaN;
+            }
+          };
+
+          const scanMin = -60;
+          const scanMax = 60;
+          const steps = 4000;
+          const dx = (scanMax - scanMin) / steps;
+
+          let prevX = scanMin;
+          let prevY = evalD(prevX);
+
+          for (let i = 1; i <= steps; i++) {
+            const currX = scanMin + i * dx;
+            const currY = evalD(currX);
+
+            if (Number.isFinite(prevY) && Number.isFinite(currY)) {
+              if (prevY * currY <= 0) {
+                let a = prevX;
+                let b = currX;
+                let fa = prevY;
+                for (let iter = 0; iter < 50; iter++) {
+                  const mid = 0.5 * (a + b);
+                  const fm = evalD(mid);
+                  if (!Number.isFinite(fm)) break;
+                  if (fa * fm <= 0) b = mid;
+                  else {
+                    a = mid;
+                    fa = fm;
+                  }
+                }
+                const root = 0.5 * (a + b);
+                if (Math.abs(evalD(root)) < 1e-5) {
+                  candidates.push(root);
+                }
+              } else if (Math.abs(currY) < 0.05) {
+                let a = prevX - dx;
+                let b = currX + dx;
+                for (let iter = 0; iter < 45; iter++) {
+                  const m1 = a + (b - a) / 3;
+                  const m2 = b - (b - a) / 3;
+                  if (Math.abs(evalD(m1)) < Math.abs(evalD(m2))) b = m2;
+                  else a = m1;
+                }
+                const root = 0.5 * (a + b);
+                if (Math.abs(evalD(root)) < 1e-6) {
+                  candidates.push(root);
+                }
+              }
+            }
+            prevX = currX;
+            prevY = currY;
+          }
+        }
+
+        return dedupeNumbers(candidates, 1e-3);
+      }
+
+      function estimateDirectionalLimit(x0, dir) {
+        const deltas = [1e-4, 1e-5, 1e-6, 1e-7];
+        const vals = [];
+        for (const d of deltas) {
+          const v = evalStrict(x0 + dir * d);
+          if (!Number.isFinite(v)) return { status: 'undefined', value: NaN };
+          vals.push(v);
+        }
+
+        const last = vals[vals.length - 1];
+        const prev = vals[vals.length - 2];
+        const prev2 = vals[vals.length - 3];
+
+        if (Math.abs(last) > 1e4 && Math.abs(last) > Math.abs(prev) * 2) {
+          return { status: 'infinite', value: last > 0 ? Infinity : -Infinity };
+        }
+
+        if (Math.abs(last - prev) < 1e-2 && Math.abs(prev - prev2) < 1e-1) {
+          const clean = Math.abs(last - Math.round(last)) < 1e-5 ? Math.round(last) : last;
+          return { status: 'finite', value: clean };
+        }
+
+        return { status: 'infinite', value: last > 0 ? Infinity : -Infinity };
+      }
+
+      function detectDiscontinuities() {
+        const candidates = findCandidateSingularities();
+        const holes = [];
+        const verticalAsymptotes = [];
+        const domainExclusions = [];
+
+        for (const x0 of candidates) {
+          const fAtX0 = evalStrict(x0);
+          const left = estimateDirectionalLimit(x0, -1);
+          const right = estimateDirectionalLimit(x0, +1);
+
+          if (
+            Number.isFinite(fAtX0) &&
+            left.status === 'finite' &&
+            right.status === 'finite' &&
+            Math.abs(fAtX0 - left.value) < 1e-4 &&
+            Math.abs(fAtX0 - right.value) < 1e-4
+          ) {
+            continue;
+          }
+
+          domainExclusions.push(x0);
+
+          if (
+            left.status === 'finite' &&
+            right.status === 'finite' &&
+            Math.abs(left.value - right.value) < 1e-3
+          ) {
+            const y0 = 0.5 * (left.value + right.value);
+            const cleanY = Math.abs(y0 - Math.round(y0)) < 1e-5 ? Math.round(y0) : y0;
+            holes.push({
+              x: x0,
+              y: cleanY,
+              leftLim: left.value,
+              rightLim: right.value
+            });
+          } else if (left.status === 'infinite' || right.status === 'infinite') {
+            verticalAsymptotes.push({ x: x0 });
+          }
+        }
+
+        // בניית תחומי הגדרה רציפים
+        const domainIntervals = [];
+        if (domainExclusions.length === 0) {
+          domainIntervals.push({ start: -Infinity, end: Infinity, leftOpen: true, rightOpen: true });
+        } else {
+          let prev = -Infinity;
+          for (const ex of domainExclusions) {
+            if (Number.isFinite(evalStrict((prev === -Infinity ? ex - 1 : 0.5 * (prev + ex))))) {
+              domainIntervals.push({ start: prev, end: ex, leftOpen: true, rightOpen: true });
+            }
+            prev = ex;
+          }
+          if (Number.isFinite(evalStrict(prev + 1))) {
+            domainIntervals.push({ start: prev, end: Infinity, leftOpen: true, rightOpen: true });
+          }
+        }
+
+        return { holes, verticalAsymptotes, domainExclusions, domainIntervals };
+      }
+
+      function detectEndAsymptotes() {
+        function analyzeDirection(sign) {
+          const x1 = sign * 2e4;
+          const x2 = sign * 5e4;
+          const x3 = sign * 1e5;
+
+          const y1 = evalStrict(x1);
+          const y2 = evalStrict(x2);
+          const y3 = evalStrict(x3);
+
+          if (!Number.isFinite(y1) || !Number.isFinite(y2) || !Number.isFinite(y3)) {
+            return null;
+          }
+
+          const m12 = (y2 - y1) / (x2 - x1);
+          const m23 = (y3 - y2) / (x3 - x2);
+
+          if (Math.abs(m23) > 1e3 || Math.abs(m23 - m12) > 1e-3) {
+            return null;
+          }
+
+          const m = Math.abs(m23) < 1e-5 ? 0 : (Math.abs(m23 - Math.round(m23)) < 1e-5 ? Math.round(m23) : m23);
+          const n2 = y2 - m * x2;
+          const n3 = y3 - m * x3;
+
+          if (!Number.isFinite(n3) || Math.abs(n3) > 1e6 || Math.abs(n3 - n2) > 1e-2) {
+            return null;
+          }
+
+          const n = Math.abs(n3) < 1e-5 ? 0 : (Math.abs(n3 - Math.round(n3)) < 1e-5 ? Math.round(n3) : n3);
+
+          return {
+            type: m === 0 ? 'horizontal' : 'oblique',
+            m,
+            n,
+            label: formatLinearEq(m, n)
+          };
+        }
+
+        const pos = analyzeDirection(+1);
+        const neg = analyzeDirection(-1);
+        const results = [];
+
+        if (pos && neg && Math.abs(pos.m - neg.m) < 1e-4 && Math.abs(pos.n - neg.n) < 1e-4) {
+          results.push({ ...pos, dir: 'both' });
+        } else {
+          if (pos) results.push({ ...pos, dir: 'pos' });
+          if (neg) results.push({ ...neg, dir: 'neg' });
+        }
+
+        return results;
+      }
+
+      function detectIntercepts(exclusions) {
+        const isExcluded = (x) => exclusions.some((ex) => Math.abs(x - ex) < 1e-3);
+
+        let yIntercept = null;
+        if (!isExcluded(0)) {
+          const y0 = evalStrict(0);
+          if (Number.isFinite(y0)) {
+            const cleanY = Math.abs(y0 - Math.round(y0)) < 1e-6 ? Math.round(y0) : y0;
+            yIntercept = { x: 0, y: cleanY };
+          }
+        }
+
+        const rawRoots = [];
+        const scanMin = -50;
+        const scanMax = 50;
+        const steps = 4000;
+        const dx = (scanMax - scanMin) / steps;
+
+        let prevX = scanMin;
+        let prevY = evalStrict(prevX);
+
+        for (let i = 1; i <= steps; i++) {
+          const currX = scanMin + i * dx;
+          const currY = evalStrict(currX);
+
+          if (Number.isFinite(prevY) && Number.isFinite(currY)) {
+            if (Math.abs(currY - prevY) < 50 && prevY * currY <= 0) {
+              let a = prevX;
+              let b = currX;
+              let fa = prevY;
+              for (let iter = 0; iter < 50; iter++) {
+                const mid = 0.5 * (a + b);
+                const fm = evalStrict(mid);
+                if (!Number.isFinite(fm)) break;
+                if (fa * fm <= 0) b = mid;
+                else {
+                  a = mid;
+                  fa = fm;
+                }
+              }
+              const r = 0.5 * (a + b);
+              const fr = evalStrict(r);
+              if (Number.isFinite(fr) && Math.abs(fr) < 1e-5 && !isExcluded(r)) {
+                rawRoots.push(r);
+              }
+            } else if (Math.abs(currY) < 0.02) {
+              let a = prevX - dx;
+              let b = currX + dx;
+              for (let iter = 0; iter < 40; iter++) {
+                const m1 = a + (b - a) / 3;
+                const m2 = b - (b - a) / 3;
+                if (Math.abs(evalStrict(m1)) < Math.abs(evalStrict(m2))) b = m2;
+                else a = m1;
+              }
+              const r = 0.5 * (a + b);
+              const fr = evalStrict(r);
+              if (Number.isFinite(fr) && Math.abs(fr) < 1e-5 && !isExcluded(r)) {
+                rawRoots.push(r);
+              }
+            }
+          }
+
+          prevX = currX;
+          prevY = currY;
+        }
+
+        const uniqueRoots = dedupeNumbers(rawRoots, 1e-3);
+        const xIntercepts = uniqueRoots.map((x) => ({ x, y: 0 }));
+
+        return { xIntercepts, yIntercept };
+      }
+
+      function findRootsOfDerivative(evalDerivFn, exclusions) {
+        const isExcluded = (x) => exclusions.some((ex) => Math.abs(x - ex) < 2e-3);
+        const raw = [];
+        const scanMin = -40;
+        const scanMax = 40;
+        const steps = 3200;
+        const dx = (scanMax - scanMin) / steps;
+
+        let prevX = scanMin;
+        let prevV = evalDerivFn(prevX);
+
+        for (let i = 1; i <= steps; i++) {
+          const currX = scanMin + i * dx;
+          const currV = evalDerivFn(currX);
+
+          if (Number.isFinite(prevV) && Number.isFinite(currV)) {
+            if (Math.abs(currV - prevV) < 100 && prevV * currV <= 0) {
+              let a = prevX;
+              let b = currX;
+              let fa = prevV;
+              for (let iter = 0; iter < 45; iter++) {
+                const mid = 0.5 * (a + b);
+                const fm = evalDerivFn(mid);
+                if (!Number.isFinite(fm)) break;
+                if (fa * fm <= 0) b = mid;
+                else {
+                  a = mid;
+                  fa = fm;
+                }
+              }
+              const r = 0.5 * (a + b);
+              const fr = evalDerivFn(r);
+              if (Number.isFinite(fr) && Math.abs(fr) < 1e-4 && !isExcluded(r)) {
+                raw.push(r);
+              }
+            }
+          }
+          prevX = currX;
+          prevV = currV;
+        }
+
+        return dedupeNumbers(raw, 2e-3);
+      }
+
+      function detectCalculusFeatures(exclusions) {
+        const critRoots = findRootsOfDerivative(evalD1, exclusions);
+        const extrema = [];
+
+        for (const cx of critRoots) {
+          const yVal = evalStrict(cx);
+          if (!Number.isFinite(yVal)) continue;
+          const leftD = evalD1(cx - 1e-3);
+          const rightD = evalD1(cx + 1e-3);
+          if (Number.isFinite(leftD) && Number.isFinite(rightD)) {
+            if (leftD > 1e-6 && rightD < -1e-6) {
+              const cleanY = Math.abs(yVal - Math.round(yVal)) < 1e-5 ? Math.round(yVal) : yVal;
+              extrema.push({ x: cx, y: cleanY, type: 'max' });
+            } else if (leftD < -1e-6 && rightD > 1e-6) {
+              const cleanY = Math.abs(yVal - Math.round(yVal)) < 1e-5 ? Math.round(yVal) : yVal;
+              extrema.push({ x: cx, y: cleanY, type: 'min' });
+            }
+          }
+        }
+
+        // חלוקת תחום ההגדרה למקטעי עלייה וירידה
+        const monoBounds = dedupeNumbers([...exclusions, ...critRoots], 1e-3);
+        const increasingIntervals = [];
+        const decreasingIntervals = [];
+
+        const testPointsMono = [];
+        if (monoBounds.length === 0) {
+          testPointsMono.push({ start: -Infinity, end: Infinity, probe: 0 });
+        } else {
+          testPointsMono.push({ start: -Infinity, end: monoBounds[0], probe: monoBounds[0] - 1 });
+          for (let i = 0; i < monoBounds.length - 1; i++) {
+            testPointsMono.push({
+              start: monoBounds[i],
+              end: monoBounds[i + 1],
+              probe: 0.5 * (monoBounds[i] + monoBounds[i + 1])
+            });
+          }
+          const lastB = monoBounds[monoBounds.length - 1];
+          testPointsMono.push({ start: lastB, end: Infinity, probe: lastB + 1 });
+        }
+
+        for (const seg of testPointsMono) {
+          if (!Number.isFinite(evalStrict(seg.probe))) continue;
+          const dVal = evalD1(seg.probe);
+          if (Number.isFinite(dVal)) {
+            if (dVal > 1e-6) increasingIntervals.push({ start: seg.start, end: seg.end, leftOpen: true, rightOpen: true });
+            else if (dVal < -1e-6) decreasingIntervals.push({ start: seg.start, end: seg.end, leftOpen: true, rightOpen: true });
+          }
+        }
+
+        // נקודות פיתול ותחומי קעירות
+        const d2Roots = findRootsOfDerivative(evalD2, exclusions);
+        const inflectionPoints = [];
+
+        for (const ix of d2Roots) {
+          const yVal = evalStrict(ix);
+          if (!Number.isFinite(yVal)) continue;
+          const leftD2 = evalD2(ix - 2e-3);
+          const rightD2 = evalD2(ix + 2e-3);
+          if (Number.isFinite(leftD2) && Number.isFinite(rightD2)) {
+            if ((leftD2 > 1e-5 && rightD2 < -1e-5) || (leftD2 < -1e-5 && rightD2 > 1e-5)) {
+              const cleanY = Math.abs(yVal - Math.round(yVal)) < 1e-5 ? Math.round(yVal) : yVal;
+              inflectionPoints.push({
+                x: ix,
+                y: cleanY,
+                from: leftD2 > 0 ? 'up' : 'down',
+                to: rightD2 > 0 ? 'up' : 'down'
+              });
+            }
+          }
+        }
+
+        const concBounds = dedupeNumbers([...exclusions, ...inflectionPoints.map((p) => p.x)], 1e-3);
+        const concaveUpIntervals = [];
+        const concaveDownIntervals = [];
+
+        const testPointsConc = [];
+        if (concBounds.length === 0) {
+          testPointsConc.push({ start: -Infinity, end: Infinity, probe: 0 });
+        } else {
+          testPointsConc.push({ start: -Infinity, end: concBounds[0], probe: concBounds[0] - 1 });
+          for (let i = 0; i < concBounds.length - 1; i++) {
+            testPointsConc.push({
+              start: concBounds[i],
+              end: concBounds[i + 1],
+              probe: 0.5 * (concBounds[i] + concBounds[i + 1])
+            });
+          }
+          const lastC = concBounds[concBounds.length - 1];
+          testPointsConc.push({ start: lastC, end: Infinity, probe: lastC + 1 });
+        }
+
+        for (const seg of testPointsConc) {
+          if (!Number.isFinite(evalStrict(seg.probe))) continue;
+          const d2Val = evalD2(seg.probe);
+          if (Number.isFinite(d2Val)) {
+            if (d2Val > 1e-5) concaveUpIntervals.push({ start: seg.start, end: seg.end, leftOpen: true, rightOpen: true });
+            else if (d2Val < -1e-5) concaveDownIntervals.push({ start: seg.start, end: seg.end, leftOpen: true, rightOpen: true });
+          }
+        }
+
+        return {
+          extrema,
+          increasingIntervals,
+          decreasingIntervals,
+          inflectionPoints,
+          concaveUpIntervals,
+          concaveDownIntervals
+        };
+      }
+
+      function runFullAnalysis() {
+        const { holes, verticalAsymptotes, domainExclusions, domainIntervals } = detectDiscontinuities();
+        const endAsymptotes = detectEndAsymptotes();
+        const { xIntercepts, yIntercept } = detectIntercepts(domainExclusions);
+        const calc = detectCalculusFeatures(domainExclusions);
+
+        state.analysis = {
+          holes,
+          verticalAsymptotes,
+          endAsymptotes,
+          xIntercepts,
+          yIntercept,
+          domainExclusions,
+          domainIntervals,
+          ...calc
+        };
+      }
+
+      // =========================================================================
+      // 5. התמרות קואורדינטות ורינדור מערכת הצירים והגרף
+      // =========================================================================
+      function mathToPx(x, y, width, height) {
+        const { xMin, xMax, yMin, yMax } = state.view;
+        const px = ((x - xMin) / (xMax - xMin)) * width;
+        const py = height - ((y - yMin) / (yMax - yMin)) * height;
+        return { x: px, y: py };
+      }
+
+      function pxToMath(px, py, width, height) {
+        const { xMin, xMax, yMin, yMax } = state.view;
+        const x = xMin + (px / width) * (xMax - xMin);
+        const y = yMin + ((height - py) / height) * (yMax - yMin);
+        return { x, y };
+      }
+
+      function getNiceGridStep(range, targetTicks = 10) {
+        const roughStep = range / targetTicks;
+        const mag = Math.pow(10, Math.floor(Math.log10(roughStep)));
+        const residual = roughStep / mag;
+        if (residual <= 1.5) return 1 * mag;
+        if (residual <= 3.5) return 2 * mag;
+        if (residual <= 7.5) return 5 * mag;
+        return 10 * mag;
+      }
+
+      function resizeCanvas() {
+        const rect = dom.canvasWrapper.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        dom.canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        dom.canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        renderGraph();
+      }
+
+      function drawRoundedBadge(text, x, y, options = {}) {
+        const {
+          bg = 'rgba(255, 255, 255, 0.94)',
+          border = '#cbd5e1',
+          color = '#0f172a',
+          font = '600 11.5px "JetBrains Mono", monospace',
+          dir = 'ltr',
+          paddingX = 7
+        } = options;
+
+        ctx.save();
+        ctx.font = font;
+        ctx.direction = dir;
+        const metrics = ctx.measureText(text);
+        const boxW = metrics.width + paddingX * 2;
+        const boxH = 21;
+
+        const rx = x - boxW / 2;
+        const ry = y - boxH / 2;
+
+        ctx.shadowColor = 'rgba(15, 23, 42, 0.08)';
+        ctx.shadowBlur = 5;
+        ctx.shadowOffsetY = 2;
+
+        ctx.fillStyle = bg;
+        ctx.beginPath();
+        ctx.roundRect(rx, ry, boxW, boxH, 7);
+        ctx.fill();
+
+        ctx.shadowColor = 'transparent';
+        ctx.strokeStyle = border;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y + 0.5);
+        ctx.restore();
+      }
+
+      function drawHoleBadge(coordStr, centerX, centerY) {
+        const hebrewText = 'נקודת סליקה';
+        ctx.save();
+        ctx.font = '700 11px "Heebo", sans-serif';
+        const wHeb = ctx.measureText(hebrewText).width;
+
+        ctx.font = '600 11px "JetBrains Mono", monospace';
+        const wCoord = ctx.measureText(coordStr).width;
+
+        const gap = 6;
+        const padX = 8;
+        const boxW = wHeb + gap + wCoord + padX * 2;
+        const boxH = 23;
+
+        const rx = centerX - boxW / 2;
+        const ry = centerY - boxH / 2;
+
+        ctx.shadowColor = 'rgba(225, 29, 72, 0.16)';
+        ctx.shadowBlur = 7;
+        ctx.shadowOffsetY = 2;
+
+        ctx.fillStyle = '#fff1f2';
+        ctx.beginPath();
+        ctx.roundRect(rx, ry, boxW, boxH, 8);
+        ctx.fill();
+
+        ctx.shadowColor = 'transparent';
+        ctx.strokeStyle = '#fb7185';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+
+        ctx.font = '600 11px "JetBrains Mono", monospace';
+        ctx.direction = 'ltr';
+        ctx.fillStyle = '#be123c';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(coordStr, rx + padX, centerY + 0.5);
+
+        ctx.font = '700 11px "Heebo", sans-serif';
+        ctx.direction = 'rtl';
+        ctx.fillStyle = '#881337';
+        ctx.textAlign = 'right';
+        ctx.fillText(hebrewText, rx + boxW - padX, centerY + 0.5);
+        ctx.restore();
+      }
+
+      function renderGraph() {
+        const rect = dom.canvasWrapper.getBoundingClientRect();
+        const W = rect.width;
+        const H = rect.height;
+        if (W <= 0 || H <= 0) return;
+
+        const { xMin, xMax, yMin, yMax } = state.view;
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+
+        // 1. רשת וצירי קואורדינטות (מוצגים תמיד)
+        const xStep = getNiceGridStep(xMax - xMin, Math.max(6, Math.floor(W / 72)));
+        const yStep = getNiceGridStep(yMax - yMin, Math.max(5, Math.floor(H / 62)));
+        const originPx = mathToPx(0, 0, W, H);
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#f1f5f9';
+
+        const firstX = Math.ceil(xMin / xStep) * xStep;
+        for (let gx = firstX; gx <= xMax; gx += xStep) {
+          const px = mathToPx(gx, 0, W, H).x;
+          ctx.beginPath();
+          ctx.moveTo(px, 0);
+          ctx.lineTo(px, H);
+          ctx.stroke();
+        }
+
+        const firstY = Math.ceil(yMin / yStep) * yStep;
+        for (let gy = firstY; gy <= yMax; gy += yStep) {
+          const py = mathToPx(0, gy, W, H).y;
+          ctx.beginPath();
+          ctx.moveTo(0, py);
+          ctx.lineTo(W, py);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.6;
+        if (originPx.y >= 0 && originPx.y <= H) {
+          ctx.beginPath();
+          ctx.moveTo(0, originPx.y);
+          ctx.lineTo(W, originPx.y);
+          ctx.stroke();
+        }
+        if (originPx.x >= 0 && originPx.x <= W) {
+          ctx.beginPath();
+          ctx.moveTo(originPx.x, 0);
+          ctx.lineTo(originPx.x, H);
+          ctx.stroke();
+        }
+
+        ctx.save();
+        ctx.font = '500 10.5px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#64748b';
+        ctx.direction = 'ltr';
+
+        const clampedAxisY = Math.min(Math.max(originPx.y, 14), H - 16);
+        const clampedAxisX = Math.min(Math.max(originPx.x, 24), W - 12);
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        for (let gx = firstX; gx <= xMax; gx += xStep) {
+          if (Math.abs(gx) < xStep * 0.01) continue;
+          const px = mathToPx(gx, 0, W, H).x;
+          if (px < 18 || px > W - 18) continue;
+          ctx.fillText(formatNum(gx, 4), px, clampedAxisY + 4);
+        }
+
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        for (let gy = firstY; gy <= yMax; gy += yStep) {
+          if (Math.abs(gy) < yStep * 0.01) continue;
+          const py = mathToPx(0, gy, W, H).y;
+          if (py < 12 || py > H - 12) continue;
+          ctx.fillText(formatNum(gy, 4), clampedAxisX - 5, py);
+        }
+
+        ctx.font = 'italic 700 12px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#475569';
+        if (originPx.y >= 10 && originPx.y <= H - 10) {
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText('x', W - 8, originPx.y - 5);
+        }
+        if (originPx.x >= 10 && originPx.x <= W - 10) {
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          ctx.fillText('y', originPx.x + 6, 8);
+        }
+        ctx.restore();
+
+        // 2. אסימפטוטות אופקיות ומשופעות
+        if (state.compiledFn && state.layers.ha) {
+          for (const asym of state.analysis.endAsymptotes) {
+            const drawXStart = asym.dir === 'pos' ? Math.max(0, xMin) : xMin;
+            const drawXEnd = asym.dir === 'neg' ? Math.min(0, xMax) : xMax;
+            if (drawXStart >= drawXEnd) continue;
+
+            const p1 = mathToPx(drawXStart, asym.m * drawXStart + asym.n, W, H);
+            const p2 = mathToPx(drawXEnd, asym.m * drawXEnd + asym.n, W, H);
+
+            ctx.save();
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 1.7;
+            ctx.setLineDash([7, 5]);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+            ctx.restore();
+
+            const labelX = Math.min(Math.max(drawXEnd - (xMax - xMin) * 0.16, xMin + (xMax - xMin) * 0.16), xMax - (xMax - xMin) * 0.14);
+            const labelY = asym.m * labelX + asym.n;
+            const lPx = mathToPx(labelX, labelY, W, H);
+            if (lPx.y >= 16 && lPx.y <= H - 16) {
+              drawRoundedBadge(asym.label, lPx.x, lPx.y - 15, {
+                bg: 'rgba(240, 249, 255, 0.95)',
+                border: '#7dd3fc',
+                color: '#0369a1'
+              });
+            }
+          }
+        }
+
+        // 3. אסימפטוטות אנכיות
+        if (state.compiledFn && state.layers.va) {
+          for (const va of state.analysis.verticalAsymptotes) {
+            if (va.x < xMin || va.x > xMax) continue;
+            const px = mathToPx(va.x, 0, W, H).x;
+
+            ctx.save();
+            ctx.strokeStyle = '#7c3aed';
+            ctx.lineWidth = 1.9;
+            ctx.setLineDash([7, 5]);
+            ctx.beginPath();
+            ctx.moveTo(px, 0);
+            ctx.lineTo(px, H);
+            ctx.stroke();
+            ctx.restore();
+
+            drawRoundedBadge(`x = ${formatNum(va.x)}`, px, 22, {
+              bg: 'rgba(245, 243, 255, 0.96)',
+              border: '#c4b5fd',
+              color: '#5b21b6'
+            });
+          }
+        }
+
+        // 4. גרף הנגזרת f'(x) (קו כתום מקווקו)
+        if (state.layers.derivative && state.compiledFn) {
+          ctx.save();
+          ctx.strokeStyle = '#f97316';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 4]);
+          const samples = Math.max(700, Math.floor(W * 1.4));
+          const stepX = (xMax - xMin) / samples;
+          const ySpan = yMax - yMin;
+          let penDown = false;
+          let prevY = NaN;
+          let prevPy = NaN;
+
+          ctx.beginPath();
+          for (let i = 0; i <= samples; i++) {
+            const x = xMin + i * stepX;
+            if (state.analysis.domainExclusions.some((ex) => Math.abs(x - ex) < stepX * 1.2)) {
+              penDown = false;
+              prevY = NaN;
+              continue;
+            }
+            const y = evalD1(x);
+            if (!Number.isFinite(y)) {
+              penDown = false;
+              prevY = NaN;
+              continue;
+            }
+            const pt = mathToPx(x, y, W, H);
+            if (penDown && Number.isFinite(prevY) && Math.abs(y - prevY) > ySpan * 1.8 && ((prevPy < 0 && pt.y > H) || (prevPy > H && pt.y < 0))) {
+              penDown = false;
+            }
+            if (pt.y < -H * 1.5 || pt.y > H * 2.5) {
+              penDown = false;
+              prevY = y;
+              prevPy = pt.y;
+              continue;
+            }
+            if (!penDown) {
+              ctx.moveTo(pt.x, pt.y);
+              penDown = true;
+            } else {
+              ctx.lineTo(pt.x, pt.y);
+            }
+            prevY = y;
+            prevPy = pt.y;
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 5. עקומת הפונקציה הראשית f(x)
+        if (state.compiledFn && state.layers.curve) {
+          ctx.save();
+          ctx.strokeStyle = '#4f46e5';
+          ctx.lineWidth = 2.6;
+          ctx.lineJoin = 'round';
+          ctx.lineCap = 'round';
+
+          const samples = Math.max(900, Math.floor(W * 1.8));
+          const stepX = (xMax - xMin) / samples;
+          const ySpan = yMax - yMin;
+
+          const splits = state.analysis.domainExclusions
+            .filter((sx) => sx > xMin && sx < xMax)
+            .sort((a, b) => a - b);
+
+          let splitIdx = 0;
+          let penDown = false;
+          let prevY = NaN;
+          let prevPy = NaN;
+
+          ctx.beginPath();
+
+          for (let i = 0; i <= samples; i++) {
+            const x = xMin + i * stepX;
+
+            while (splitIdx < splits.length && splits[splitIdx] <= x) {
+              const sX = splits[splitIdx];
+              const holeObj = state.analysis.holes.find((h) => Math.abs(h.x - sX) < 1e-4);
+
+              if (holeObj) {
+                const hPx = mathToPx(holeObj.x, holeObj.y, W, H);
+                if (penDown && hPx.y >= -H && hPx.y <= 2 * H) {
+                  ctx.lineTo(hPx.x, hPx.y);
+                }
+                ctx.moveTo(hPx.x, hPx.y);
+                penDown = true;
+                prevY = holeObj.y;
+                prevPy = hPx.y;
+              } else {
+                penDown = false;
+                prevY = NaN;
+                prevPy = NaN;
+              }
+              splitIdx++;
+            }
+
+            const y = evalStrict(x);
+            if (!Number.isFinite(y)) {
+              penDown = false;
+              prevY = NaN;
+              prevPy = NaN;
+              continue;
+            }
+
+            const pt = mathToPx(x, y, W, H);
+
+            if (penDown && Number.isFinite(prevY)) {
+              const dy = Math.abs(y - prevY);
+              if (dy > ySpan * 1.8 && ((prevPy < 0 && pt.y > H) || (prevPy > H && pt.y < 0))) {
+                penDown = false;
+              }
+            }
+
+            if (pt.y < -H * 1.5 || pt.y > H * 2.5) {
+              penDown = false;
+              prevY = y;
+              prevPy = pt.y;
+              continue;
+            }
+
+            if (!penDown) {
+              ctx.moveTo(pt.x, pt.y);
+              penDown = true;
+            } else {
+              ctx.lineTo(pt.x, pt.y);
+            }
+
+            prevY = y;
+            prevPy = pt.y;
+          }
+
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 6. נקודות חיתוך עם הצירים
+        if (state.compiledFn && state.layers.intercepts) {
+          const allIntercepts = [
+            ...state.analysis.xIntercepts,
+            ...(state.analysis.yIntercept ? [state.analysis.yIntercept] : [])
+          ];
+
+          for (const pt of allIntercepts) {
+            if (pt.x < xMin || pt.x > xMax || pt.y < yMin || pt.y > yMax) continue;
+            const px = mathToPx(pt.x, pt.y, W, H);
+
+            ctx.save();
+            ctx.fillStyle = '#0d9488';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(px.x, px.y, 4.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        // 7. נקודות קיצון מקומיות (ירוק)
+        if (state.compiledFn && state.layers.extrema) {
+          for (const ex of state.analysis.extrema) {
+            if (ex.x < xMin || ex.x > xMax || ex.y < yMin || ex.y > yMax) continue;
+            const px = mathToPx(ex.x, ex.y, W, H);
+
+            ctx.save();
+            ctx.fillStyle = '#059669';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(px.x, px.y, 5.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            const tag = `${ex.type === 'max' ? 'max' : 'min'} ${formatCoordPair(ex.x, ex.y)}`;
+            const offsetY = ex.type === 'max' ? -20 : 20;
+            drawRoundedBadge(tag, px.x, px.y + offsetY, {
+              bg: 'rgba(236, 253, 245, 0.95)',
+              border: '#6ee7b7',
+              color: '#065f46'
+            });
+          }
+        }
+
+        // 8. נקודות פיתול (מעוין כתום-ענבר)
+        if (state.compiledFn && state.layers.inflection) {
+          for (const inf of state.analysis.inflectionPoints) {
+            if (inf.x < xMin || inf.x > xMax || inf.y < yMin || inf.y > yMax) continue;
+            const px = mathToPx(inf.x, inf.y, W, H);
+
+            ctx.save();
+            ctx.fillStyle = '#d97706';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.8;
+            ctx.beginPath();
+            ctx.moveTo(px.x, px.y - 6.5);
+            ctx.lineTo(px.x + 6.5, px.y);
+            ctx.lineTo(px.x, px.y + 6.5);
+            ctx.lineTo(px.x - 6.5, px.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        // 9. נקודות סליקה (עדיפות ויזואלית עליונה)
+        if (state.compiledFn && state.layers.holes) {
+          for (const hole of state.analysis.holes) {
+            if (hole.x < xMin || hole.x > xMax || hole.y < yMin || hole.y > yMax) continue;
+            const px = mathToPx(hole.x, hole.y, W, H);
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(225, 29, 72, 0.38)';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([4, 4]);
+
+            if (originPx.y >= 0 && originPx.y <= H) {
+              ctx.beginPath();
+              ctx.moveTo(px.x, px.y);
+              ctx.lineTo(px.x, originPx.y);
+              ctx.stroke();
+            }
+            if (originPx.x >= 0 && originPx.x <= W) {
+              ctx.beginPath();
+              ctx.moveTo(px.x, px.y);
+              ctx.lineTo(originPx.x, px.y);
+              ctx.stroke();
+            }
+            ctx.restore();
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(225, 29, 72, 0.14)';
+            ctx.beginPath();
+            ctx.arc(px.x, px.y, 10.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#e11d48';
+            ctx.lineWidth = 2.8;
+            ctx.beginPath();
+            ctx.arc(px.x, px.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            const coordStr = formatCoordPair(hole.x, hole.y);
+            const offsetY = px.y < 44 ? 24 : -22;
+            drawHoleBadge(coordStr, px.x, px.y + offsetY);
+          }
+        }
+
+        // 10. תצוגת ריחוף והצמדה מגנטית לנקודות מיוחדות
+        if (state.interaction.hoverPx && !state.interaction.isDragging) {
+          drawHoverOverlay(state.interaction.hoverPx, W, H);
+        }
+      }
+
+      function drawHoverOverlay(hoverPx, W, H) {
+        const mathPt = pxToMath(hoverPx.x, hoverPx.y, W, H);
+        if (!state.compiledFn || !state.layers.curve) {
+          dom.hoverHud.classList.remove('opacity-0');
+          dom.hoverCoords.textContent = formatCoordPair(mathPt.x, mathPt.y);
+          dom.hoverNote.classList.add('hidden');
+          return;
+        }
+
+        let snappedHole = null;
+        let snappedIntercept = null;
+
+        if (state.layers.holes) {
+          for (const h of state.analysis.holes) {
+            const hPx = mathToPx(h.x, h.y, W, H);
+            if (Math.hypot(hPx.x - hoverPx.x, hPx.y - hoverPx.y) < 18) {
+              snappedHole = h;
+              break;
+            }
+          }
+        }
+
+        if (!snappedHole && state.layers.intercepts) {
+          const allInt = [
+            ...state.analysis.xIntercepts,
+            ...(state.analysis.yIntercept ? [state.analysis.yIntercept] : [])
+          ];
+          for (const it of allInt) {
+            const iPx = mathToPx(it.x, it.y, W, H);
+            if (Math.hypot(iPx.x - hoverPx.x, iPx.y - hoverPx.y) < 14) {
+              snappedIntercept = it;
+              break;
+            }
+          }
+        }
+
+        if (snappedHole) {
+          const px = mathToPx(snappedHole.x, snappedHole.y, W, H);
+          ctx.save();
+          ctx.strokeStyle = '#e11d48';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(px.x, px.y, 10, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+
+          dom.hoverHud.classList.remove('opacity-0');
+          dom.hoverCoords.textContent = `x = ${formatNum(snappedHole.x)}  |  lim f(x) = ${formatNum(snappedHole.y)}`;
+          dom.hoverNote.classList.remove('hidden');
+          dom.hoverNote.className = 'text-[11px] text-rose-700 font-semibold mt-0.5';
+          dom.hoverNote.innerHTML = `נקודת סליקה: הפונקציה אינה מוגדרת ב-${renderKatexHtml(`x = ${formatNum(snappedHole.x)}`)}, אך הגבול קיים ושווה ל-${renderKatexHtml(formatNum(snappedHole.y))}.`;
+          return;
+        }
+
+        if (snappedIntercept) {
+          const px = mathToPx(snappedIntercept.x, snappedIntercept.y, W, H);
+          ctx.save();
+          ctx.strokeStyle = '#0d9488';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(px.x, px.y, 8, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+
+          dom.hoverHud.classList.remove('opacity-0');
+          dom.hoverCoords.textContent = formatCoordPair(snappedIntercept.x, snappedIntercept.y);
+          dom.hoverNote.classList.remove('hidden');
+          dom.hoverNote.className = 'text-[11px] text-teal-700 font-semibold mt-0.5';
+          dom.hoverNote.textContent = snappedIntercept.x === 0 ? 'נקודת חיתוך עם ציר Y' : 'נקודת חיתוך עם ציר X';
+          return;
+        }
+
+        const yVal = evalStrict(mathPt.x);
+        if (Number.isFinite(yVal)) {
+          const curvePx = mathToPx(mathPt.x, yVal, W, H);
+
+          ctx.save();
+          ctx.strokeStyle = 'rgba(100, 116, 139, 0.35)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(hoverPx.x, 0);
+          ctx.lineTo(hoverPx.x, H);
+          ctx.stroke();
+          ctx.restore();
+
+          if (curvePx.y >= 0 && curvePx.y <= H) {
+            ctx.save();
+            ctx.fillStyle = '#4f46e5';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(curvePx.x, curvePx.y, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          dom.hoverHud.classList.remove('opacity-0');
+          dom.hoverCoords.textContent = formatCoordPair(mathPt.x, yVal);
+          dom.hoverNote.classList.add('hidden');
+        } else {
+          dom.hoverHud.classList.remove('opacity-0');
+          dom.hoverCoords.textContent = `x = ${formatNum(mathPt.x)}  |  f(x) לא מוגדרת`;
+          dom.hoverNote.classList.add('hidden');
+        }
+      }
+
+      // =========================================================================
+      // 6. עדכון כרטיסי תכונות הפונקציה בכתיב LaTeX
+      // =========================================================================
+      function updateSummaryUI() {
+        const {
+          holes,
+          verticalAsymptotes,
+          endAsymptotes,
+          xIntercepts,
+          yIntercept,
+          domainExclusions,
+          domainIntervals,
+          extrema,
+          increasingIntervals,
+          decreasingIntervals,
+          inflectionPoints,
+          concaveUpIntervals,
+          concaveDownIntervals
+        } = state.analysis;
+
+        // 1. נקודות סליקה
+        if (holes.length === 0) {
+          dom.summaryHoles.innerHTML = `<p class="text-slate-500 text-xs sm:text-sm">לא נמצאו נקודות סליקה עבור פונקציה זו.</p>`;
+        } else {
+          dom.summaryHoles.innerHTML = holes
+            .map(
+              (h) => `
+              <div class="rounded-xl bg-white border border-rose-200 px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full border-2 border-rose-600 bg-white"></span>
+                  ${renderKatexHtml(`\\left(${formatNum(h.x)},\\, ${formatNum(h.y)}\\right)`)}
+                </div>
+                <span class="text-xs text-rose-800 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">
+                  ${renderKatexHtml(`\\lim_{x \\to ${formatNum(h.x)}} f(x) = ${formatNum(h.y)}`)}
+                </span>
+              </div>
+            `
+            )
+            .join('');
+        }
+
+        // 2. תחום הגדרה
+        if (!state.compiledFn) {
+          dom.summaryDomain.innerHTML = `<p class="text-slate-500 text-xs sm:text-sm">הזינו פונקציה לחישוב תחום ההגדרה.</p>`;
+        } else if (
+          domainExclusions.length === 0 &&
+          domainIntervals.length === 1 &&
+          domainIntervals[0].start === -Infinity &&
+          domainIntervals[0].end === Infinity
+        ) {
+          dom.summaryDomain.innerHTML = `
+            <div class="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 inline-block">
+              ${renderKatexHtml('x \\in \\mathbb{R}')} <span class="text-xs text-slate-600 mr-1">(כל המספרים הממשיים)</span>
+            </div>
+          `;
+        } else {
+          const exclHtml =
+            domainExclusions.length > 0
+              ? `<div class="rounded-xl bg-slate-50 border border-slate-200 px-3 py-1.5 inline-block">
+                  ${renderKatexHtml(`x \\ne ${domainExclusions.map((v) => formatNum(v)).join(',\\; ')}`)}
+                </div>`
+              : '';
+          const intervalsHtml =
+            domainIntervals.length > 0
+              ? `<div class="flex flex-wrap pt-1">
+                  ${domainIntervals
+                    .map(
+                      (iv) =>
+                        `<span class="inline-block bg-white border border-slate-200 rounded-lg px-2.5 py-1 ml-1.5 mb-1">${renderKatexHtml(formatInterval(iv))}</span>`
+                    )
+                    .join('')}
+                </div>`
+              : '';
+          dom.summaryDomain.innerHTML = `${exclHtml}${intervalsHtml}`;
+        }
+
+        // 3. נגזרת הפונקציה (תבנית מסודרת)
+        if (state.d1Info && state.d1Info.neatLatex) {
+          const info = state.d1Info;
+          let stepsHtml = '';
+
+          if (info.ruleFormulaLatex || info.componentsLatex || info.substitutionLatex) {
+            stepsHtml = `
+              <details class="group rounded-xl border border-indigo-100 bg-white/80 px-3 py-2 text-xs">
+                <summary class="cursor-pointer select-none font-semibold text-indigo-800 flex items-center justify-between">
+                  <span>שלבי הגזירה (${info.ruleName})</span>
+                  <span class="text-[11px] text-indigo-500 group-open:hidden">הצג פירוט ▾</span>
+                  <span class="text-[11px] text-indigo-500 hidden group-open:inline">הסתר פירוט ▴</span>
+                </summary>
+                <div class="mt-2 pt-2 border-t border-indigo-100/80 space-y-2 text-slate-700">
+                  ${
+                    info.ruleFormulaLatex
+                      ? `<div>
+                          <div class="text-[11px] font-semibold text-slate-500 mb-0.5">תבנית הכלל:</div>
+                          <div class="bg-slate-50 rounded-lg px-2.5 py-1.5 overflow-x-auto">${renderKatexHtml(info.ruleFormulaLatex)}</div>
+                        </div>`
+                      : ''
+                  }
+                  ${
+                    info.componentsLatex
+                      ? `<div>
+                          <div class="text-[11px] font-semibold text-slate-500 mb-0.5">גזירת המרכיבים:</div>
+                          <div class="bg-slate-50 rounded-lg px-2.5 py-1.5 overflow-x-auto">${renderKatexHtml(info.componentsLatex)}</div>
+                        </div>`
+                      : ''
+                  }
+                  ${
+                    info.substitutionLatex
+                      ? `<div>
+                          <div class="text-[11px] font-semibold text-slate-500 mb-0.5">הצבה בתבנית:</div>
+                          <div class="bg-slate-50 rounded-lg px-2.5 py-1.5 overflow-x-auto">${renderKatexHtml(info.substitutionLatex)}</div>
+                        </div>`
+                      : ''
+                  }
+                </div>
+              </details>
+            `;
+          }
+
+          dom.summaryDerivative.innerHTML = `
+            <div class="rounded-xl border border-indigo-200 bg-white px-3.5 py-2.5 shadow-2xs space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">
+                  ${info.ruleName}
+                </span>
+                <span class="text-[11px] text-slate-400">צורה מפושטת ומסודרת</span>
+              </div>
+              <div class="pt-0.5 overflow-x-auto">
+                ${renderKatexHtml(`f'(x) = ${info.neatLatex}`, true)}
+              </div>
+            </div>
+            ${stepsHtml}
+          `;
+        } else {
+          dom.summaryDerivative.innerHTML = `<p class="text-slate-500 text-xs">הנגזרת מחושבת נומרית עבור פונקציה זו.</p>`;
+        }
+
+        // 4. תחום עלייה, ירידה וקיצון
+        const incHtml =
+          increasingIntervals.length > 0
+            ? increasingIntervals.map((iv) => `<span class="inline-block bg-white border border-emerald-200 rounded-lg px-2.5 py-1 ml-1.5 mb-1">${renderKatexHtml(formatInterval(iv))}</span>`).join('')
+            : `<span class="text-slate-500 text-xs">אין תחום עלייה</span>`;
+
+        const decHtml =
+          decreasingIntervals.length > 0
+            ? decreasingIntervals.map((iv) => `<span class="inline-block bg-white border border-rose-200 rounded-lg px-2.5 py-1 ml-1.5 mb-1">${renderKatexHtml(formatInterval(iv))}</span>`).join('')
+            : `<span class="text-slate-500 text-xs">אין תחום ירידה</span>`;
+
+        const extHtml =
+          extrema.length > 0
+            ? extrema
+                .map((ex) => {
+                  const label = ex.type === 'max' ? 'מקסימום מקומי' : 'מינימום מקומי';
+                  return `<div class="bg-white border border-emerald-200 rounded-lg px-2.5 py-1 flex items-center justify-between text-xs">
+                    <span class="font-semibold text-emerald-900">${label}:</span>
+                    ${renderKatexHtml(`\\left(${formatNum(ex.x)},\\, ${formatNum(ex.y)}\\right)`)}
+                  </div>`;
+                })
+                .join('')
+            : `<span class="text-slate-500 text-xs">אין נקודות קיצון פנימיות</span>`;
+
+        dom.summaryMonotonicity.innerHTML = `
+          <div>
+            <div class="text-xs font-semibold text-emerald-800 mb-1">תחום עלייה (${renderKatexHtml("f'(x) > 0")}):</div>
+            <div class="flex flex-wrap">${incHtml}</div>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-rose-800 mb-1">תחום ירידה (${renderKatexHtml("f'(x) < 0")}):</div>
+            <div class="flex flex-wrap">${decHtml}</div>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-600 mb-1">נקודות קיצון:</div>
+            <div class="space-y-1">${extHtml}</div>
+          </div>
+        `;
+
+        // 5. נקודות פיתול
+        if (inflectionPoints.length === 0) {
+          dom.summaryInflection.innerHTML = `<p class="text-slate-500 text-xs sm:text-sm">אין נקודות פיתול לפונקציה זו.</p>`;
+        } else {
+          dom.summaryInflection.innerHTML = inflectionPoints
+            .map(
+              (inf) => `
+              <div class="rounded-xl bg-white border border-amber-200 px-3 py-1.5 flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold text-amber-900">נקודת פיתול:</span>
+                ${renderKatexHtml(`\\left(${formatNum(inf.x)},\\, ${formatNum(inf.y)}\\right)`)}
+              </div>
+            `
+            )
+            .join('');
+        }
+
+        // 6. תחומי קעירות
+        const cupHtml =
+          concaveUpIntervals.length > 0
+            ? concaveUpIntervals.map((iv) => `<span class="inline-block bg-white border border-purple-200 rounded-lg px-2.5 py-1 ml-1.5 mb-1">${renderKatexHtml(formatInterval(iv))}</span>`).join('')
+            : `<span class="text-slate-500 text-xs">אין תחום קעירות כלפי מעלה</span>`;
+
+        const cdownHtml =
+          concaveDownIntervals.length > 0
+            ? concaveDownIntervals.map((iv) => `<span class="inline-block bg-white border border-purple-200 rounded-lg px-2.5 py-1 ml-1.5 mb-1">${renderKatexHtml(formatInterval(iv))}</span>`).join('')
+            : `<span class="text-slate-500 text-xs">אין תחום קעירות כלפי מטה</span>`;
+
+        dom.summaryConcavity.innerHTML = `
+          <div>
+            <div class="text-xs font-semibold text-purple-900 mb-1">קעירות כלפי מעלה (${renderKatexHtml("f''(x) > 0")}):</div>
+            <div class="flex flex-wrap">${cupHtml}</div>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-purple-900 mb-1">קעירות כלפי מטה (${renderKatexHtml("f''(x) < 0")}):</div>
+            <div class="flex flex-wrap">${cdownHtml}</div>
+          </div>
+        `;
+
+        // 7. אסימפטוטות אנכיות
+        if (verticalAsymptotes.length === 0) {
+          dom.summaryVa.innerHTML = `<p class="text-slate-500 text-xs sm:text-sm">אין אסימפטוטות אנכיות.</p>`;
+        } else {
+          dom.summaryVa.innerHTML = verticalAsymptotes
+            .map(
+              (va) => `
+              <div class="inline-block ml-2 mb-1 px-3 py-1 rounded-lg bg-white border border-violet-200 text-violet-900">
+                ${renderKatexHtml(`x = ${formatNum(va.x)}`)}
+              </div>
+            `
+            )
+            .join('');
+        }
+
+        // 8. אסימפטוטות אופקיות / משופעות
+        if (endAsymptotes.length === 0) {
+          dom.summaryHa.innerHTML = `<p class="text-slate-500 text-xs sm:text-sm">אין אסימפטוטות אופקיות או משופעות.</p>`;
+        } else {
+          dom.summaryHa.innerHTML = endAsymptotes
+            .map((a) => {
+              const typeHe = a.type === 'horizontal' ? 'אופקית' : 'משופעת';
+              const dirHtml =
+                a.dir === 'both'
+                  ? ''
+                  : a.dir === 'pos'
+                  ? ` (${renderKatexHtml('x \\to +\\infty')})`
+                  : ` (${renderKatexHtml('x \\to -\\infty')})`;
+              return `
+                <div class="rounded-lg bg-white border border-sky-200 px-3 py-1.5 flex items-center justify-between gap-2">
+                  <span class="text-xs font-medium text-sky-900">${typeHe}${dirHtml}:</span>
+                  ${renderKatexHtml(a.label)}
+                </div>
+              `;
+            })
+            .join('');
+        }
+
+        // 9. נקודות חיתוך עם הצירים
+        const yHtml = yIntercept
+          ? `<span class="inline-block bg-white border border-teal-200 px-2.5 py-1 rounded-lg">${renderKatexHtml(`\\left(0,\\, ${formatNum(yIntercept.y)}\\right)`)}</span>`
+          : `<span class="text-slate-500 text-xs">אין (לא מוגדרת ב-${renderKatexHtml('x = 0')})</span>`;
+
+        const xHtml =
+          xIntercepts.length > 0
+            ? xIntercepts
+                .map(
+                  (pt) =>
+                    `<span class="inline-block bg-white border border-teal-200 px-2.5 py-1 rounded-lg ml-1.5 mb-1">${renderKatexHtml(`\\left(${formatNum(pt.x)},\\, 0\\right)`)}</span>`
+                )
+                .join('')
+            : `<span class="text-slate-500 text-xs">לא נמצאו חיתוכים בטווח</span>`;
+
+        dom.summaryIntercepts.innerHTML = `
+          <div>
+            <div class="text-xs font-semibold text-slate-500 mb-1">חיתוך עם ציר ${renderKatexHtml('Y')}:</div>
+            <div>${yHtml}</div>
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-slate-500 mb-1">חיתוך עם ציר ${renderKatexHtml('X')}:</div>
+            <div class="flex flex-wrap">${xHtml}</div>
+          </div>
+        `;
+      }
+
+      // =========================================================================
+      // 7. קימפול ועדכון המשוואה בזמן אמת
+      // =========================================================================
+      function getActiveRawInput() {
+        if (!state.isRawLatexMode && dom.mathInput && !dom.mathInput.classList.contains('hidden') && typeof dom.mathInput.getValue === 'function') {
+          return dom.mathInput.getValue('latex');
+        }
+        return dom.fallbackInput ? dom.fallbackInput.value : '';
+      }
+
+      function setActiveInputLatex(latexVal, plainVal) {
+        if (dom.mathInput && typeof dom.mathInput.setValue === 'function') {
+          dom.mathInput.setValue(latexVal || '');
+        }
+        if (dom.fallbackInput) {
+          dom.fallbackInput.value = plainVal !== undefined ? plainVal : (latexVal || '');
+        }
+      }
+
+      function clearFunctionGraph() {
+        state.latexString = '';
+        state.exprString = '';
+        state.compiledFn = null;
+        state.d1Compiled = null;
+        state.d1Latex = '';
+        state.d1Info = null;
+        state.d2Compiled = null;
+        state.denominators = [];
+        state.analysis = {
+          holes: [],
+          verticalAsymptotes: [],
+          endAsymptotes: [],
+          xIntercepts: [],
+          yIntercept: null,
+          domainExclusions: [],
+          domainIntervals: [],
+          extrema: [],
+          increasingIntervals: [],
+          decreasingIntervals: [],
+          inflectionPoints: [],
+          concaveUpIntervals: [],
+          concaveDownIntervals: []
+        };
+        hideError();
+        if (dom.summaryFnLabel) {
+          dom.summaryFnLabel.innerHTML = renderKatexHtml('f(x)');
+        }
+        updateSummaryUI();
+        renderGraph();
+      }
+
+      function updateFunction(rawInput, autoFit = false, silentErrors = false) {
+        state.latexString = (rawInput || '').trim();
+        const cleaned = latexToMathJs(state.latexString);
+        state.exprString = cleaned;
+
+        if (!cleaned) {
+          if (silentErrors) {
+            clearFunctionGraph();
+          } else {
+            showError('אנא הזינו ביטוי מתמטי.');
+          }
+          return;
+        }
+
+        try {
+          const node = math.parse(cleaned);
+          const compiled = node.compile();
+          compiled.evaluate({ x: 1.234567 });
+
+          state.compiledFn = compiled;
+          state.denominators = extractDenominators(node);
+          hideError();
+
+          state.d1Compiled = null;
+          state.d1Latex = '';
+          state.d1Info = null;
+          state.d2Compiled = null;
+          try {
+            const derivInfo = buildNeatDerivative(node);
+            state.d1Compiled = derivInfo.compiled;
+            state.d1Latex = derivInfo.neatLatex;
+            state.d1Info = derivInfo;
+
+            const rawD1 = math.derivative(node, 'x');
+            let d2Node = math.derivative(rawD1, 'x');
+            try {
+              d2Node = math.simplify(d2Node);
+            } catch (_) {}
+            state.d2Compiled = d2Node.compile();
+          } catch (_) {}
+
+          renderLivePreview(state.latexString);
+          if (dom.summaryFnLabel) {
+            const displayTex = state.latexString || node.toTex({ parenthesis: 'auto' });
+            dom.summaryFnLabel.innerHTML = renderKatexHtml(`f(x) = ${displayTex}`);
+          }
+
+          runFullAnalysis();
+
+          if (autoFit) {
+            smartFitView();
+          }
+
+          updateSummaryUI();
+          renderGraph();
+        } catch (err) {
+          if (!silentErrors) {
+            showError('לא ניתן לפענח את הנוסחה. בדקו סוגריים וערכים תקינים.');
+          }
+        }
+      }
+
+      function smartFitView() {
+        const interestingX = [0];
+        const interestingY = [0];
+
+        state.analysis.holes.forEach((h) => {
+          interestingX.push(h.x);
+          interestingY.push(h.y);
+        });
+        state.analysis.verticalAsymptotes.forEach((va) => interestingX.push(va.x));
+        state.analysis.xIntercepts.forEach((pt) => interestingX.push(pt.x));
+        state.analysis.extrema.forEach((ex) => {
+          interestingX.push(ex.x);
+          interestingY.push(ex.y);
+        });
+        if (state.analysis.yIntercept) interestingY.push(state.analysis.yIntercept.y);
+
+        const minX = Math.min(...interestingX);
+        const maxX = Math.max(...interestingX);
+        const minY = Math.min(...interestingY);
+        const maxY = Math.max(...interestingY);
+
+        const padX = Math.max(5, (maxX - minX) * 0.45);
+        const padY = Math.max(4.5, (maxY - minY) * 0.45);
+
+        state.view = {
+          xMin: Math.floor(minX - padX),
+          xMax: Math.ceil(maxX + padX),
+          yMin: Math.floor(minY - padY),
+          yMax: Math.ceil(maxY + padY)
+        };
+      }
+
+      function showError(msg) {
+        dom.errorText.textContent = msg;
+        dom.errorBanner.classList.remove('hidden');
+      }
+
+      function hideError() {
+        dom.errorBanner.classList.add('hidden');
+      }
+
+      // =========================================================================
+      // 8. זום, גרירה, הזזת לוח ואירועי מקלדת
+      // =========================================================================
+      function zoomAround(factor, centerX, centerY) {
+        const { xMin, xMax, yMin, yMax } = state.view;
+        const newW = (xMax - xMin) * factor;
+        const newH = (yMax - yMin) * factor;
+        if (newW < 0.05 || newW > 500) return;
+
+        const rx = (centerX - xMin) / (xMax - xMin);
+        const ry = (centerY - yMin) / (yMax - yMin);
+
+        state.view = {
+          xMin: centerX - rx * newW,
+          xMax: centerX + (1 - rx) * newW,
+          yMin: centerY - ry * newH,
+          yMax: centerY + (1 - ry) * newH
+        };
+        renderGraph();
+      }
+
+      dom.canvas.addEventListener(
+        'wheel',
+        (e) => {
+          e.preventDefault();
+          const rect = dom.canvas.getBoundingClientRect();
+          const px = e.clientX - rect.left;
+          const py = e.clientY - rect.top;
+          const mathPt = pxToMath(px, py, rect.width, rect.height);
+          const factor = e.deltaY > 0 ? 1.15 : 0.87;
+          zoomAround(factor, mathPt.x, mathPt.y);
+        },
+        { passive: false }
+      );
+
+      dom.canvas.addEventListener('mousedown', (e) => {
+        state.interaction.isDragging = true;
+        state.interaction.dragStartPx = { x: e.clientX, y: e.clientY };
+        state.interaction.dragStartView = { ...state.view };
+        dom.canvas.classList.add('grabbing');
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        const rect = dom.canvas.getBoundingClientRect();
+        if (state.interaction.isDragging && state.interaction.dragStartView) {
+          const dxPx = e.clientX - state.interaction.dragStartPx.x;
+          const dyPx = e.clientY - state.interaction.dragStartPx.y;
+          const v = state.interaction.dragStartView;
+          const dxMath = (dxPx / rect.width) * (v.xMax - v.xMin);
+          const dyMath = (dyPx / rect.height) * (v.yMax - v.yMin);
+
+          state.view = {
+            xMin: v.xMin - dxMath,
+            xMax: v.xMax - dxMath,
+            yMin: v.yMin + dyMath,
+            yMax: v.yMax + dyMath
+          };
+          renderGraph();
+          return;
+        }
+
+        if (
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom
+        ) {
+          state.interaction.hoverPx = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+          };
+          renderGraph();
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (state.interaction.isDragging) {
+          state.interaction.isDragging = false;
+          dom.canvas.classList.remove('grabbing');
+          renderGraph();
+        }
+      });
+
+      dom.canvas.addEventListener('mouseleave', () => {
+        state.interaction.hoverPx = null;
+        dom.hoverHud.classList.add('opacity-0');
+        renderGraph();
+      });
+
+      dom.canvas.addEventListener(
+        'touchstart',
+        (e) => {
+          if (e.touches.length === 1) {
+            state.interaction.isDragging = true;
+            state.interaction.dragStartPx = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            state.interaction.dragStartView = { ...state.view };
+            const rect = dom.canvas.getBoundingClientRect();
+            state.interaction.hoverPx = {
+              x: e.touches[0].clientX - rect.left,
+              y: e.touches[0].clientY - rect.top
+            };
+          } else if (e.touches.length === 2) {
+            state.interaction.isDragging = false;
+            state.interaction.pinchDist = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            );
+          }
+        },
+        { passive: true }
+      );
+
+      dom.canvas.addEventListener(
+        'touchmove',
+        (e) => {
+          e.preventDefault();
+          const rect = dom.canvas.getBoundingClientRect();
+          if (e.touches.length === 1 && state.interaction.isDragging && state.interaction.dragStartView) {
+            const dxPx = e.touches[0].clientX - state.interaction.dragStartPx.x;
+            const dyPx = e.touches[0].clientY - state.interaction.dragStartPx.y;
+            const v = state.interaction.dragStartView;
+            const dxMath = (dxPx / rect.width) * (v.xMax - v.xMin);
+            const dyMath = (dyPx / rect.height) * (v.yMax - v.yMin);
+
+            state.view = {
+              xMin: v.xMin - dxMath,
+              xMax: v.xMax - dxMath,
+              yMin: v.yMin + dyMath,
+              yMax: v.yMax + dyMath
+            };
+            renderGraph();
+          } else if (e.touches.length === 2 && state.interaction.pinchDist) {
+            const newDist = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            );
+            const factor = state.interaction.pinchDist / newDist;
+            state.interaction.pinchDist = newDist;
+            const cx = 0.5 * (state.view.xMin + state.view.xMax);
+            const cy = 0.5 * (state.view.yMin + state.view.yMax);
+            zoomAround(factor, cx, cy);
+          }
+        },
+        { passive: false }
+      );
+
+      dom.canvas.addEventListener('touchend', () => {
+        state.interaction.isDragging = false;
+        state.interaction.pinchDist = null;
+        renderGraph();
+      });
+
+      dom.zoomInBtn.addEventListener('click', () => {
+        zoomAround(0.78, 0.5 * (state.view.xMin + state.view.xMax), 0.5 * (state.view.yMin + state.view.yMax));
+      });
+
+      dom.zoomOutBtn.addEventListener('click', () => {
+        zoomAround(1.28, 0.5 * (state.view.xMin + state.view.xMax), 0.5 * (state.view.yMin + state.view.yMax));
+      });
+
+      dom.resetViewBtn.addEventListener('click', () => {
+        smartFitView();
+        renderGraph();
+      });
+
+      function panByFraction(fx, fy) {
+        const { xMin, xMax, yMin, yMax } = state.view;
+        const dx = (xMax - xMin) * fx;
+        const dy = (yMax - yMin) * fy;
+        state.view = {
+          xMin: xMin + dx,
+          xMax: xMax + dx,
+          yMin: yMin + dy,
+          yMax: yMax + dy
+        };
+        renderGraph();
+      }
+
+      dom.panLeftBtn.addEventListener('click', () => panByFraction(-0.18, 0));
+      dom.panRightBtn.addEventListener('click', () => panByFraction(0.18, 0));
+      dom.panUpBtn.addEventListener('click', () => panByFraction(0, 0.18));
+      dom.panDownBtn.addEventListener('click', () => panByFraction(0, -0.18));
+
+      // סנכרון שכבות הגרף בין סרגל הגרף לבין כרטיסי התכונות
+      const layerCheckboxMap = {
+        holes: dom.toggleHoles,
+        va: dom.toggleVa,
+        ha: dom.toggleHa,
+        intercepts: dom.toggleIntercepts,
+        extrema: dom.toggleExtrema,
+        inflection: dom.toggleInflection,
+        derivative: dom.toggleDerivative
+      };
+
+      function syncLayerButtonsUI() {
+        document.querySelectorAll('.prop-layer-btn').forEach((btn) => {
+          const key = btn.getAttribute('data-layer-sync');
+          const active = Boolean(state.layers[key]);
+          btn.textContent = active ? 'בגרף ✓' : 'בגרף';
+          btn.classList.toggle('opacity-55', !active);
+        });
+      }
+
+      function setGraphLayer(layerKey, visible) {
+        state.layers[layerKey] = visible;
+        if (layerCheckboxMap[layerKey]) {
+          layerCheckboxMap[layerKey].checked = visible;
+        }
+        syncLayerButtonsUI();
+        renderGraph();
+      }
+
+      dom.toggleHoles.addEventListener('change', (e) => setGraphLayer('holes', e.target.checked));
+      dom.toggleVa.addEventListener('change', (e) => setGraphLayer('va', e.target.checked));
+      dom.toggleHa.addEventListener('change', (e) => setGraphLayer('ha', e.target.checked));
+      dom.toggleIntercepts.addEventListener('change', (e) => setGraphLayer('intercepts', e.target.checked));
+      dom.toggleExtrema.addEventListener('change', (e) => setGraphLayer('extrema', e.target.checked));
+      dom.toggleInflection.addEventListener('change', (e) => setGraphLayer('inflection', e.target.checked));
+      dom.toggleDerivative.addEventListener('change', (e) => setGraphLayer('derivative', e.target.checked));
+
+      document.querySelectorAll('.prop-layer-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-layer-sync');
+          setGraphLayer(key, !state.layers[key]);
+        });
+      });
+
+      // כפתור הצג/הסתר גרף על גבי מערכת הצירים (בפתיחה מוסתר ומערכת הצירים מוצגת)
+      if (dom.curveToggleBtn) {
+        dom.curveToggleBtn.addEventListener('click', () => {
+          const showGraph = !state.layers.curve;
+          state.layers.curve = showGraph;
+          ['holes', 'va', 'ha', 'intercepts', 'extrema', 'inflection'].forEach((k) => {
+            state.layers[k] = showGraph;
+            if (layerCheckboxMap[k]) layerCheckboxMap[k].checked = showGraph;
+          });
+          if (!showGraph) {
+            state.layers.derivative = false;
+            if (layerCheckboxMap.derivative) layerCheckboxMap.derivative.checked = false;
+          }
+          dom.curveToggleBtn.setAttribute('aria-expanded', String(showGraph));
+          dom.curveToggleBtn.textContent = showGraph ? 'הסתר גרף' : 'הצג גרף';
+          syncLayerButtonsUI();
+          renderGraph();
+        });
+      }
+
+      // הצגה והסתרה של כל תכונה ברשימת התכונות
+      const propertyGraphLayerMap = {
+        holes: 'holes',
+        derivative: 'derivative',
+        monotonicity: 'extrema',
+        inflection: 'inflection',
+        va: 'va',
+        ha: 'ha',
+        intercepts: 'intercepts'
+      };
+
+      function setPropertyVisibility(propKey, visible) {
+        const bodyEl = document.querySelector(`[data-prop-body="${propKey}"]`);
+        const btnEl = document.querySelector(`[data-toggle-prop="${propKey}"]`);
+        if (bodyEl) {
+          bodyEl.classList.toggle('hidden', !visible);
+        }
+        if (btnEl) {
+          btnEl.setAttribute('aria-expanded', String(visible));
+          const labelEl = btnEl.querySelector('.prop-vis-label');
+          if (labelEl) {
+            labelEl.textContent = visible ? 'הסתר' : 'הצג';
+          }
+        }
+        if (propertyGraphLayerMap[propKey] && propKey !== 'derivative' && state.layers.curve) {
+          setGraphLayer(propertyGraphLayerMap[propKey], visible);
+        }
+      }
+
+      document.querySelectorAll('.prop-vis-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const propKey = btn.getAttribute('data-toggle-prop');
+          const bodyEl = document.querySelector(`[data-prop-body="${propKey}"]`);
+          const currentlyVisible = bodyEl ? !bodyEl.classList.contains('hidden') : false;
+          setPropertyVisibility(propKey, !currentlyVisible);
+        });
+      });
+
+      dom.showAllPropsBtn.addEventListener('click', () => {
+        document.querySelectorAll('[data-toggle-prop]').forEach((btn) => {
+          setPropertyVisibility(btn.getAttribute('data-toggle-prop'), true);
+        });
+      });
+
+      dom.hideAllPropsBtn.addEventListener('click', () => {
+        document.querySelectorAll('[data-toggle-prop]').forEach((btn) => {
+          setPropertyVisibility(btn.getAttribute('data-toggle-prop'), false);
+        });
+      });
+
+      // מעבר בין עורך LaTeX חזותי לקוד LaTeX גולמי
+      if (dom.latexModeBtn) {
+        dom.latexModeBtn.addEventListener('click', () => {
+          const canUseVisual = window.MathfieldElement && dom.mathInput && typeof dom.mathInput.getValue === 'function';
+          if (!canUseVisual) return;
+
+          state.isRawLatexMode = !state.isRawLatexMode;
+          if (state.isRawLatexMode) {
+            dom.fallbackInput.value = dom.mathInput.getValue('latex');
+            dom.mathInput.classList.add('hidden');
+            dom.fallbackInput.classList.remove('hidden');
+            dom.latexModeBtn.classList.add('bg-indigo-100');
+            dom.fallbackInput.focus();
+          } else {
+            dom.mathInput.setValue(dom.fallbackInput.value || '');
+            dom.fallbackInput.classList.add('hidden');
+            dom.mathInput.classList.remove('hidden');
+            dom.latexModeBtn.classList.remove('bg-indigo-100');
+            dom.mathInput.focus();
+          }
+        });
+      }
+
+      if (dom.mathInput) {
+        dom.mathInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            updateFunction(getActiveRawInput(), true, false);
+          }
+        });
+
+        dom.mathInput.addEventListener('change', () => {
+          updateFunction(getActiveRawInput(), true, false);
+        });
+
+        dom.mathInput.addEventListener('input', () => {
+          updateFunction(getActiveRawInput(), false, true);
+        });
+      }
+
+      if (dom.fallbackInput) {
+        dom.fallbackInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            updateFunction(dom.fallbackInput.value, true, false);
+          }
+        });
+
+        dom.fallbackInput.addEventListener('input', () => {
+          updateFunction(dom.fallbackInput.value, false, true);
+        });
+      }
+
+      dom.clearBtn.addEventListener('click', () => {
+        setActiveInputLatex('', '');
+        clearFunctionGraph();
+        if (!state.isRawLatexMode && dom.mathInput && !dom.mathInput.classList.contains('hidden')) {
+          dom.mathInput.focus();
+        } else {
+          dom.fallbackInput.focus();
+        }
+      });
+
+      // פתיחה וסגירה של המקלדת הווירטואלית
+      dom.vkToggleBtn.addEventListener('click', () => {
+        const isHidden = dom.vkPanel.classList.toggle('hidden');
+        dom.vkTabsBar.classList.toggle('hidden', isHidden);
+        dom.vkToggleBtn.setAttribute('aria-expanded', String(!isHidden));
+        dom.vkToggleBtn.textContent = isHidden ? 'הצג' : 'הסתר';
+      });
+
+      // מעבר בין לשוניות המקלדת
+      document.querySelectorAll('.vk-tab-btn').forEach((tabBtn) => {
+        tabBtn.addEventListener('click', () => {
+          const target = tabBtn.getAttribute('data-vk-tab');
+          document.querySelectorAll('.vk-tab-btn').forEach((b) => {
+            const active = b.getAttribute('data-vk-tab') === target;
+            b.classList.toggle('bg-white', active);
+            b.classList.toggle('text-slate-900', active);
+            b.classList.toggle('shadow-2xs', active);
+            b.classList.toggle('text-slate-600', !active);
+          });
+
+          const basicPanel = document.getElementById('vk-panel-basic');
+          const advPanel = document.getElementById('vk-panel-advanced');
+          if (target === 'basic') {
+            basicPanel.classList.remove('hidden');
+            basicPanel.classList.add('grid');
+            advPanel.classList.add('hidden');
+            advPanel.classList.remove('grid');
+          } else {
+            advPanel.classList.remove('hidden');
+            advPanel.classList.add('grid');
+            basicPanel.classList.add('hidden');
+            basicPanel.classList.remove('grid');
+          }
+        });
+      });
+
+      // לחיצות על מקשי המקלדת המתמטית
+      document.querySelectorAll('.vk-key').forEach((keyBtn) => {
+        keyBtn.addEventListener('click', () => {
+          const latexToken = keyBtn.getAttribute('data-latex');
+          const cmd = keyBtn.getAttribute('data-cmd');
+          const action = keyBtn.getAttribute('data-action');
+          const useMathLive =
+            !state.isRawLatexMode &&
+            window.MathfieldElement &&
+            dom.mathInput &&
+            !dom.mathInput.classList.contains('hidden') &&
+            typeof dom.mathInput.executeCommand === 'function';
+
+          if (action === 'clear') {
+            setActiveInputLatex('', '');
+            clearFunctionGraph();
+            if (useMathLive) dom.mathInput.focus();
+            else dom.fallbackInput.focus();
+            return;
+          }
+
+          if (action === 'plot') {
+            updateFunction(getActiveRawInput(), true, false);
+            return;
+          }
+
+          if (useMathLive) {
+            dom.mathInput.focus();
+            if (cmd) {
+              dom.mathInput.executeCommand(cmd);
+            } else if (latexToken) {
+              dom.mathInput.executeCommand(['insert', latexToken, { focus: true, feedback: false }]);
+            }
+            updateFunction(getActiveRawInput(), false, true);
+          } else {
+            const el = dom.fallbackInput;
+            el.focus();
+            const start = el.selectionStart ?? el.value.length;
+            const end = el.selectionEnd ?? el.value.length;
+            if (cmd === 'deleteBackward') {
+              if (start > 0) {
+                el.value = el.value.slice(0, start - 1) + el.value.slice(end);
+                el.setSelectionRange(start - 1, start - 1);
+              }
+            } else if (latexToken) {
+              const plain = latexToken
+                .replace('\\frac{#@}{#?}', '\\frac{}{}')
+                .replace('^{#?}', '^{}')
+                .replace('\\sqrt{#@}', '\\sqrt{}')
+                .replace('\\sqrt[3]{#@}', '\\sqrt[3]{}')
+                .replace('\\left|#@\\right|', '\\left|\\right|')
+                .replace(/\\([a-zA-Z]+)\\left\(#@\\right\)/, '\\$1()');
+              el.value = el.value.slice(0, start) + plain + el.value.slice(end);
+              el.setSelectionRange(start + plain.length, start + plain.length);
+            }
+            updateFunction(el.value, false, true);
+          }
+        });
+      });
+
+      function renderMathButtons() {
+        if (typeof katex === 'undefined') return;
+        document.querySelectorAll('.vk-katex').forEach((el) => {
+          const tex = el.getAttribute('data-katex');
+          if (tex) {
+            try {
+              katex.render(tex, el, { throwOnError: false });
+            } catch (_) {}
+          }
+        });
+      }
+
+      // אתחול והתאמת גודל קנבס
+      window.addEventListener('resize', resizeCanvas);
+      if (typeof ResizeObserver !== 'undefined' && dom.canvasWrapper) {
+        new ResizeObserver(() => resizeCanvas()).observe(dom.canvasWrapper);
+      }
+
+      window.addEventListener('load', () => {
+        if (!window.MathfieldElement || !dom.mathInput || typeof dom.mathInput.getValue !== 'function') {
+          state.isRawLatexMode = true;
+          if (dom.mathInput) dom.mathInput.classList.add('hidden');
+          if (dom.fallbackInput) {
+            dom.fallbackInput.value = '\\frac{x^2 - 1}{x^2 - 3x + 2}';
+            dom.fallbackInput.classList.remove('hidden');
+          }
+        }
+        renderMathButtons();
+        syncLayerButtonsUI();
+        updateFunction(getActiveRawInput(), true, true);
+        resizeCanvas();
+      });
+    })();
+  </script>
+</body>
+</html>
